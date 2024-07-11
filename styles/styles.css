@@ -12,8 +12,8 @@
 
 :root {
   /* colors */
-  --link-color: #035fe6;
-  --link-hover-color: #136ff6;
+  --link-color: #a62103;
+  --link-hover-color: #c64123;
   --background-color: white;
   --light-color: #eee;
   --dark-color: #ccc;
@@ -30,9 +30,9 @@
   --body-font-size-xs: 16px;
 
   /* heading sizes */
-  --heading-font-size-xxl: 48px;
-  --heading-font-size-xl: 40px;
-  --heading-font-size-l: 32px;
+  --heading-font-size-xxl: 36px;
+  --heading-font-size-xl: 32px;
+  --heading-font-size-l: 28px;
   --heading-font-size-m: 24px;
   --heading-font-size-s: 20px;
   --heading-font-size-xs: 18px;
@@ -53,12 +53,12 @@
 
 @media (width >= 900px) {
   :root {
-    --heading-font-size-xxl: 60px;
-    --heading-font-size-xl: 48px;
-    --heading-font-size-l: 36px;
-    --heading-font-size-m: 30px;
-    --heading-font-size-s: 24px;
-    --heading-font-size-xs: 22px;
+    --heading-font-size-xxl: 44px;
+    --heading-font-size-xl: 34px;
+    --heading-font-size-l: 30px;
+    --heading-font-size-m: 26px;
+    --heading-font-size-s: 22px;
+    --heading-font-size-xs: 20px;
   }
 }
 
