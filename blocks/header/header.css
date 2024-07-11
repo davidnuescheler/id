@@ -14,7 +14,7 @@ header nav#nav {
     "hamburger brand tools" var(--nav-height)
     "sections sections sections" 1fr / auto 1fr auto;
   align-items: center;
-  gap: 0 2em;
+  gap: 0 1em;
   margin: auto;
   max-width: 1264px;
   height: var(--nav-height);
@@ -73,7 +73,7 @@ header nav#nav .nav-hamburger button {
   border: 0;
   border-radius: 0;
   padding: 0;
-  background-color: var(--background-color);
+  background-color: var(--text-color);
   color: inherit;
   overflow: initial;
   text-overflow: initial;
