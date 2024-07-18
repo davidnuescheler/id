@@ -15,6 +15,7 @@ async function createDrinksCards() {
     const cell1 = document.createElement('div');
     const a1 = document.createElement('a');
     a1.href = path;
+    picture.querySelector('img').alt = `${drink} Cocktail`;
     a1.append(picture);
     cell1.append(a1);
     const cell2 = document.createElement('div');
