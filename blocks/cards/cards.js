@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { checkIBA } from '../../scripts/scripts.js';
 
 /**
  * Builds cards block for drinks index.
@@ -18,11 +19,19 @@ async function createDrinksCards() {
     picture.querySelector('img').alt = `${drink} Cocktail`;
     a1.append(picture);
     cell1.append(a1);
+    const ibaStatus = await checkIBA(drink);
+    if (ibaStatus.current) {
+      const img = document.createElement('img');
+      img.src = '/icons/logo-iba.svg';
+      img.className = 'icon';
+      cell1.append(img);
+    }
     const cell2 = document.createElement('div');
     const a2 = document.createElement('a');
     a2.href = path;
     a2.textContent = drink;
     cell2.append(a2);
+
     card.append(cell1, cell2);
     return card;
   };
@@ -57,12 +66,12 @@ export default async function decorate(block) {
     const li = document.createElement('li');
     while (row.firstElementChild) li.append(row.firstElementChild);
     [...li.children].forEach((div) => {
-      if (div.children.length === 1 && div.querySelector('picture')) div.className = 'cards-card-image';
+      if (div.children.length <= 2 && div.querySelector('picture')) div.className = 'cards-card-image';
       else div.className = 'cards-card-body';
     });
     ul.append(li);
   });
-  ul.querySelectorAll('img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
+  ul.querySelectorAll('picture img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
   block.textContent = '';
   block.append(ul);
 }

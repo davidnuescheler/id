@@ -17,6 +17,7 @@
 }
 
 .cards .cards-card-image {
+  position: relative;
   line-height: 0;
 }
 
@@ -28,4 +29,12 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
+}
+
+.cards .cards-card-image img.icon {
+  height: 3em;
+  width: 3em;
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
 }

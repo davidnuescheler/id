@@ -16,6 +16,26 @@ import {
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
+export async function checkIBA(cocktail) {
+  if (!window.iba) {
+    const resp = await fetch('/drinks/iba.json');
+    window.iba = (await resp.json()).data;
+  }
+
+  const status = {
+    current: false,
+    collections: [],
+  };
+  window.iba.forEach((collection) => {
+    const cocktails = collection.Cocktails.split(',').map((c) => c.trim());
+    if (cocktails.includes(cocktail)) {
+      status.collections.push({ year: collection.Year, category: collection.Category });
+      if (collection.Year === '2020') status.current = true;
+    }
+  });
+  return (status);
+}
+
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
@@ -55,13 +75,22 @@ function autolinkModals(element) {
   });
 }
 
+async function buildIBABlock(main) {
+  if (window.location.pathname.startsWith('/hidden-drinks/')) {
+    const title = document.querySelector('h1').textContent;
+    const status = await checkIBA(title);
+    console.log(status, main);
+  }
+}
+
 /**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
-function buildAutoBlocks(main) {
+async function buildAutoBlocks(main) {
   try {
     buildHeroBlock(main);
+    await buildIBABlock(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -73,11 +102,11 @@ function buildAutoBlocks(main) {
  * @param {Element} main The main element
  */
 // eslint-disable-next-line import/prefer-default-export
-export function decorateMain(main) {
+export async function decorateMain(main) {
   // hopefully forward compatible button decoration
   decorateButtons(main);
   decorateIcons(main);
-  buildAutoBlocks(main);
+  await buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
 }
@@ -95,7 +124,7 @@ async function loadEager(doc) {
 
   const main = doc.querySelector('main');
   if (main) {
-    decorateMain(main);
+    await decorateMain(main);
     document.body.classList.add('appear');
     await waitForLCP(LCP_BLOCKS);
   }
