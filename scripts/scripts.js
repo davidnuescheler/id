@@ -75,11 +75,14 @@ function autolinkModals(element) {
   });
 }
 
-async function buildIBABlock(main) {
-  if (window.location.pathname.startsWith('/hidden-drinks/')) {
-    const title = document.querySelector('h1').textContent;
-    const status = await checkIBA(title);
-    console.log(status, main);
+async function buildIBABlock(main, fragment) {
+  if (window.location.pathname.startsWith('/drinks/') && !fragment) {
+    console.log('drinks');
+    const section = document.createElement('div');
+    const iba = buildBlock('iba', [[]]);
+    console.log(iba);
+    section.append(iba);
+    main.append(section);
   }
 }
 
@@ -87,10 +90,10 @@ async function buildIBABlock(main) {
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
-async function buildAutoBlocks(main) {
+async function buildAutoBlocks(main, fragment) {
   try {
     buildHeroBlock(main);
-    await buildIBABlock(main);
+    await buildIBABlock(main, fragment);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -102,11 +105,11 @@ async function buildAutoBlocks(main) {
  * @param {Element} main The main element
  */
 // eslint-disable-next-line import/prefer-default-export
-export async function decorateMain(main) {
+export async function decorateMain(main, fragment = false) {
   // hopefully forward compatible button decoration
   decorateButtons(main);
   decorateIcons(main);
-  await buildAutoBlocks(main);
+  await buildAutoBlocks(main, fragment);
   decorateSections(main);
   decorateBlocks(main);
 }

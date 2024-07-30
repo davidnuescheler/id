@@ -1,0 +1,28 @@
+.iba-container {
+    background-color: var(--light-color);  
+}
+
+.iba {
+    border: 1px solid var(--dark-color);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    margin: 32px;
+}
+
+.iba img {
+    position: absolute;
+    top: -32px;
+    left: -32px;
+    height: 64px;
+    width: 64px;
+}
+
+.iba span {
+    padding: 4px 16px;
+    margin: 4px;
+    display: inline-block;
+    border-radius: 8px;
+    background-color: white;
+}
+
