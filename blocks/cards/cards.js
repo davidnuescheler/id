@@ -5,21 +5,16 @@ import { checkIBA } from '../../scripts/scripts.js';
  * Builds cards block for drinks index.
  */
 async function createDrinksCards() {
-  const createCard = async (path) => {
-    const resp = await fetch(path);
-    const text = await resp.text();
-    const dp = new DOMParser();
-    const dom = dp.parseFromString(text, 'text/html');
-    const drink = dom.querySelector('h1').textContent;
-    const picture = dom.querySelector('picture');
+  const createCard = async (drink) => {
+    const { title, image, path } = drink;
+    const picture = createOptimizedPicture(image, `${title} Cocktail`, false, [{ width: 750 }]);
     const card = document.createElement('div');
     const cell1 = document.createElement('div');
     const a1 = document.createElement('a');
     a1.href = path;
-    picture.querySelector('img').alt = `${drink} Cocktail`;
     a1.append(picture);
     cell1.append(a1);
-    const ibaStatus = await checkIBA(drink);
+    const ibaStatus = await checkIBA(title);
     if (ibaStatus.current) {
       const img = document.createElement('img');
       img.src = '/icons/logo-iba.svg';
@@ -29,25 +24,25 @@ async function createDrinksCards() {
     const cell2 = document.createElement('div');
     const a2 = document.createElement('a');
     a2.href = path;
-    a2.textContent = drink;
+    a2.textContent = title;
     cell2.append(a2);
 
     card.append(cell1, cell2);
     return card;
   };
 
-  const resp = await fetch('/sitemap.json');
+  const resp = await fetch('/pages.json');
   const json = await resp.json();
   const drinks = json.data
     .filter((e) => e.path.startsWith('/drinks/'))
-    .sort((a, b) => b.lastModified - a.lastModified);
+    .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
 
   const cards = [];
 
   for (let i = 0; i < drinks.length; i += 1) {
     const drink = drinks[i];
     // eslint-disable-next-line no-await-in-loop
-    cards.push(await createCard(drink.path));
+    cards.push(await createCard(drink));
   }
 
   return cards;

@@ -1,6 +1,7 @@
 import { checkIBA } from '../../scripts/scripts.js';
 
 export default async function decorate(block) {
+  block.innerText = '';
   const cocktail = document.querySelector('h1').textContent;
   const status = await checkIBA(cocktail);
   if (status.collections.length > 0) {
@@ -12,5 +13,7 @@ export default async function decorate(block) {
       span.innerText = `${c.year} ${c.category}`;
       block.append(span);
     });
+  } else {
+    block.closest('.section').remove();
   }
 }

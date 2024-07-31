@@ -77,10 +77,8 @@ function autolinkModals(element) {
 
 async function buildIBABlock(main, fragment) {
   if (window.location.pathname.startsWith('/drinks/') && !fragment) {
-    console.log('drinks');
     const section = document.createElement('div');
     const iba = buildBlock('iba', [[]]);
-    console.log(iba);
     section.append(iba);
     main.append(section);
   }
