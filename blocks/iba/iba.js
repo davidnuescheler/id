@@ -7,6 +7,7 @@ export default async function decorate(block) {
   if (status.collections.length > 0) {
     const ibaLogo = document.createElement('img');
     ibaLogo.src = '/icons/logo-iba.svg';
+    ibaLogo.alt = 'IBA Logo';
     block.append(ibaLogo);
     status.collections.forEach((c) => {
       const span = document.createElement('span');

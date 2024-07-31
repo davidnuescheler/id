@@ -19,6 +19,7 @@ async function createDrinksCards() {
       const img = document.createElement('img');
       img.src = '/icons/logo-iba.svg';
       img.className = 'icon';
+      img.alt = 'IBA logo';
       cell1.append(img);
     }
     const cell2 = document.createElement('div');
