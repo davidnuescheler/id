@@ -157,7 +157,8 @@ function filterData(searchTerms, data) {
   const foundInMeta = [];
 
   if (searchTerms.length === 0) {
-    return data;
+    return data.filter((e) => /\/drinks\/./.test(e.path))
+      .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
   }
 
   data.forEach((result) => {
