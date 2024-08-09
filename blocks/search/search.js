@@ -156,6 +156,10 @@ function filterData(searchTerms, data) {
   const foundInHeader = [];
   const foundInMeta = [];
 
+  if (searchTerms.length === 0) {
+    return data;
+  }
+
   data.forEach((result) => {
     let minIdx = -1;
 
@@ -255,11 +259,9 @@ export default async function decorate(block) {
     searchResultsContainer(block),
   );
 
-  if (searchParams.get('q')) {
-    const input = block.querySelector('input');
-    input.value = searchParams.get('q');
-    input.dispatchEvent(new Event('input'));
-  }
+  const input = block.querySelector('input');
+  input.value = searchParams.get('q');
+  input.dispatchEvent(new Event('input'));
 
   decorateIcons(block);
 }
