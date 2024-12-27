@@ -35,6 +35,7 @@ async function displayResult(res) {
   const drinks = data.filter((row) => row.path.startsWith('/drinks/') && row.path !== '/drinks/');
   const hash = stringToHash(res);
   const drinkIndex = hash % drinks.length;
+  console.log(drinks, hash, drinkIndex);
   const drink = drinks[drinkIndex];
   const result = document.createElement('div');
   result.className = 'quacksly-result';
