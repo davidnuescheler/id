@@ -53,7 +53,7 @@ export default async function decorate(block) {
   let index = data.findIndex((row) => row.ID === id);
   if (index === -1) {
     index = Math.floor(Math.random() * (data.length - 3));
-    window.history.replaceState(null, '', `${window.location.pathname}?q=${data[index].ID}`);
+    // window.history.replaceState(null, '', `${window.location.pathname}?q=${data[index].ID}`);
   }
   let result = `${data[index].ID}-`;
   const appendQuestion = (questionIndex) => {
