@@ -39,9 +39,8 @@ async function displayResult(res) {
   const result = document.createElement('div');
   result.className = 'quacksly-result';
   result.innerHTML = `
-    <h2>Quacksly recommends</h2>
     <p>${drink.title}</p>
-    <img src="${drink.image}" alt="${drink.title}">
+    <a href="${drink.path}"><img src="${drink.image}" alt="${drink.title}"></a>
   `;
   document.querySelector('.quacksly-question').replaceWith(result);
 }
