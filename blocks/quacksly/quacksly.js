@@ -3,11 +3,11 @@ function createQuestion(row) {
   question.className = 'quacksly-question';
   question.innerHTML = `
     <h2>${row.Question}</h2>
-    <div class="answers">
-      <button>${row['Answer 1']}</button>
-      <button>${row['Answer 2']}</button>
-      <button>${row['Answer 3']}</button>
-      <button>${row['Answer 4']}</button>
+    <div class="quacksly-answers">
+      <button class="secondary">${row['Answer 1']}</button>
+      <button class="secondary">${row['Answer 2']}</button>
+      <button class="secondary">${row['Answer 3']}</button>
+      <button class="secondary">${row['Answer 4']}</button>
     </div>
   `;
   return question;
@@ -26,7 +26,7 @@ function stringToHash(string) {
     hash = hash & hash;
   }
 
-  return hash;
+  return Math.abs(hash);
 }
 
 async function displayResult(res) {
@@ -35,13 +35,12 @@ async function displayResult(res) {
   const drinks = data.filter((row) => row.path.startsWith('/drinks/') && row.path !== '/drinks/');
   const hash = stringToHash(res);
   const drinkIndex = hash % drinks.length;
-  console.log(drinks, hash, drinkIndex);
   const drink = drinks[drinkIndex];
   const result = document.createElement('div');
   result.className = 'quacksly-result';
   result.innerHTML = `
-    <p>${drink.title}</p>
-    <a href="${drink.path}"><img src="${drink.image}" alt="${drink.title}"></a>
+    <h2>${drink.title}</h2>
+    <a href="${drink.path}"><img src="${drink.image}?width=750&format=webply&optimize=medium" alt="${drink.title}"></a>
   `;
   document.querySelector('.quacksly-question').replaceWith(result);
 }

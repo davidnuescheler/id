@@ -1,0 +1,4 @@
+.quacksly .quacksly-answers button {
+  display: block;
+  font-size: var(--body-font-size-l);
+}
