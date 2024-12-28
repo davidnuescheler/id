@@ -1,6 +1,10 @@
 .quacksly .quacksly-answers button {
   display: block;
   font-size: var(--body-font-size-l);
+  white-space: wrap;
+  min-height: 4em;
+  align-self: middle;
+  width: 100%;
 }
 
 .hero picture img{
