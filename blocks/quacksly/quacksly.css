@@ -2,3 +2,7 @@
   display: block;
   font-size: var(--body-font-size-l);
 }
+
+.hero picture img{
+  object-position: top center;
+}
