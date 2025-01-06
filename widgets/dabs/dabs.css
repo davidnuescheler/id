@@ -1,0 +1,19 @@
+.dabs-results > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--light-color);
+}
+
+.dabs input {
+    width: calc(100% - 32px);
+    padding: 16px;
+    border: 1px solid var(--light-color);
+    border-radius: 8px;
+    font-size: 30px;
+    background-color: var(--light-color)
+}
+
+.dabs-results div.dabs-out {
+    opacity: 0.3;
+}
