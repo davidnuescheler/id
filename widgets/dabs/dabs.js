@@ -23,6 +23,9 @@ function displayResults(search) {
     const quantity = document.createElement('span');
     quantity.className = 'dabs-quantity';
     quantity.textContent = item.storeQty;
+    if (item.storeQty < 50 && item.storeQty > 0) {
+      div.classList.add('dabs-low');
+    }
     if (item.storeQty === 0) {
       div.classList.add('dabs-out');
     }
