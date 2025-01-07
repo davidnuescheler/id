@@ -35,7 +35,7 @@ function displayResults(search) {
     quantity.addEventListener('click', () => {
       if (item.warehouseQty) quantity.innerHTML += `<img src="/widgets/dabs/warehouse.svg"> ${item.warehouseQty}`;
       if (item.onOrderQty) quantity.innerHTML += `<img src="/widgets/dabs/onorder.svg"> ${item.onOrderQty}`;
-    });
+    }, { once: true });
     result.append(div);
   });
 }
