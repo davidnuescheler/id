@@ -2,27 +2,28 @@ async function loadData() {
   const resp = await fetch('https://dabs.david8603.workers.dev/?limit=30000');
   const json = await resp.json();
   const { data } = json;
-  return data;
+  const sorted = data.sort((a, b) => b.storeQty - a.storeQty);
+  return sorted;
 }
 
 function displayResults(search) {
   const result = document.querySelector('.dabs-results');
-  const filtered = window.dabs.filter(
+  const filtered = search ? window.dabs.filter(
     (item) => item.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  ) : window.dabs;
   result.textContent = '';
-  const sorted = filtered.sort((a, b) => b.storeQty - a.storeQty);
-  sorted.forEach((item, i) => {
+  filtered.forEach((item, i) => {
     if (i > 100) return;
     const div = document.createElement('div');
-    const highlighted = item.name.replace(
+    const highlighted = search ? item.name.replace(
       new RegExp(`(${search})`, 'gi'),
       '<mark>$1</mark>',
-    );
+    ) : item.name;
+
     div.innerHTML = `<span class="dabs-name">${highlighted}</span>`;
     const quantity = document.createElement('span');
     quantity.className = 'dabs-quantity';
-    const hasMore = (item.warehouseQty || item.onOrderQty) ? '*' : '';
+    const hasMore = (item.warehouseQty || item.onOrderQty) ? ' >' : '';
     quantity.textContent = `${item.storeQty}${hasMore}`;
     if (item.storeQty < 50 && item.storeQty > 0) {
       div.classList.add('dabs-low');
@@ -39,13 +40,21 @@ function displayResults(search) {
   });
 }
 
+async function initialLoad(search) {
+  const data = await loadData();
+  window.dabs = data;
+  displayResults(search);
+}
+
 export default async function decorate(widget) {
   widget.querySelector('input[name="search"]').addEventListener('input', (event) => {
     const { value } = event.target;
     document.querySelector('.dabs-results').textContent = '';
+    displayResults(value);
     if (value) {
-      displayResults(value);
       window.history.replaceState(null, '', `?search=${value}`);
+    } else {
+      window.history.replaceState(null, '', window.location.pathname);
     }
   });
   const params = new URLSearchParams(window.location.search);
@@ -53,7 +62,5 @@ export default async function decorate(widget) {
   if (search) {
     widget.querySelector('input[name="search"]').value = search;
   }
-  const data = await loadData();
-  window.dabs = data;
-  displayResults(search);
+  initialLoad(search);
 }
