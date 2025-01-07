@@ -35,3 +35,10 @@
 .dabs-results div.dabs-low span.dabs-quantity {
     background-color: orange;
 }
+
+.dabs-results span.dabs-quantity img {
+    vertical-align: bottom;
+    margin-bottom: 6px;
+    margin-left: 16px;
+}
+

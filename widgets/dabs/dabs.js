@@ -22,7 +22,8 @@ function displayResults(search) {
     div.innerHTML = `<span class="dabs-name">${highlighted}</span>`;
     const quantity = document.createElement('span');
     quantity.className = 'dabs-quantity';
-    quantity.textContent = item.storeQty;
+    const hasMore = (item.warehouseQty || item.onOrderQty) ? '*' : '';
+    quantity.textContent = `${item.storeQty}${hasMore}`;
     if (item.storeQty < 50 && item.storeQty > 0) {
       div.classList.add('dabs-low');
     }
@@ -30,6 +31,10 @@ function displayResults(search) {
       div.classList.add('dabs-out');
     }
     div.append(quantity);
+    quantity.addEventListener('click', () => {
+      if (item.warehouseQty) quantity.innerHTML += `<img src="/widgets/dabs/warehouse.svg"> ${item.warehouseQty}`;
+      if (item.onOrderQty) quantity.innerHTML += `<img src="/widgets/dabs/onorder.svg"> ${item.onOrderQty}`;
+    });
     result.append(div);
   });
 }
