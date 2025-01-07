@@ -29,7 +29,7 @@ function displayResults(search) {
     }, { once: true });
     const quantity = document.createElement('span');
     quantity.className = 'dabs-quantity';
-    const hasMore = (item.warehouseQty || item.onOrderQty) ? ' >' : '';
+    const hasMore = (item.warehouseQty || item.onOrderQty) ? '>' : '';
     quantity.textContent = `${item.storeQty}${hasMore}`;
     if (item.storeQty < 50 && item.storeQty > 0) {
       div.classList.add('dabs-low');
@@ -39,8 +39,8 @@ function displayResults(search) {
     }
     div.append(quantity);
     quantity.addEventListener('click', () => {
-      if (item.warehouseQty) quantity.innerHTML += `<img src="/widgets/dabs/warehouse.svg"> ${item.warehouseQty}`;
-      if (item.onOrderQty) quantity.innerHTML += `<img src="/widgets/dabs/onorder.svg"> ${item.onOrderQty}`;
+      if (item.warehouseQty) quantity.innerHTML += `<br><img src="/widgets/dabs/warehouse.svg">${item.warehouseQty}`;
+      if (item.onOrderQty) quantity.innerHTML += `<br><img src="/widgets/dabs/onorder.svg">${item.onOrderQty}`;
     }, { once: true });
     result.append(div);
   });

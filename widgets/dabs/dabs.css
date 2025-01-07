@@ -25,7 +25,9 @@
     border-radius: 8px;
     margin-left: 8px;
     display: inline-block;
-    height: 36px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    height: fit-content;
 }
 
 .dabs-results div.dabs-out span.dabs-quantity {
@@ -39,7 +41,8 @@
 .dabs-results span.dabs-quantity img {
     vertical-align: bottom;
     margin-bottom: 6px;
-    margin-left: 16px;
+    margin-right: 4px;
+    margin-left: 0;
 }
 
 .dabs-results span.dabs-badge {
@@ -49,7 +52,6 @@
     border-radius: 8px;
     margin-right: 8px;
     display: inline-block;
-    height: 36px;
 }
 
 .dabs-results span.dabs-badge-1 {
