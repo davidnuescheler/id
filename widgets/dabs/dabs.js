@@ -20,7 +20,13 @@ function displayResults(search) {
       '<mark>$1</mark>',
     ) : item.name;
 
-    div.innerHTML = `<span class="dabs-name">${highlighted}</span>`;
+    const status = item.status.split(' ')[0];
+
+    div.innerHTML = `<span class="dabs-name"><span class="dabs-badge dabs-badge-${status.toLowerCase()}">${status}</span>${highlighted} <strong>$${item.currentPrice}</strong></span>`;
+    const badge = div.querySelector('.dabs-badge');
+    badge.addEventListener('click', () => {
+      badge.textContent = item.status;
+    }, { once: true });
     const quantity = document.createElement('span');
     quantity.className = 'dabs-quantity';
     const hasMore = (item.warehouseQty || item.onOrderQty) ? ' >' : '';
