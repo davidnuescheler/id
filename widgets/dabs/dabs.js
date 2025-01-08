@@ -24,7 +24,8 @@ function displayResults(search) {
 
     div.innerHTML = `<span class="dabs-name"><span class="dabs-badge dabs-badge-${status.toLowerCase()}">${status}</span>${highlighted} <strong>$${item.currentPrice}</strong></span>`;
     const badge = div.querySelector('.dabs-badge');
-    badge.addEventListener('click', () => {
+    badge.addEventListener('click', (event) => {
+      event.stopPropagation();
       badge.textContent = item.status;
     }, { once: true });
     const quantity = document.createElement('span');
@@ -38,11 +39,16 @@ function displayResults(search) {
       div.classList.add('dabs-out');
     }
     div.append(quantity);
-    quantity.addEventListener('click', () => {
+    quantity.addEventListener('click', (event) => {
+      event.stopPropagation();
       if (item.warehouseQty) quantity.innerHTML += `<br><img src="/widgets/dabs/warehouse.svg">${item.warehouseQty}`;
       if (item.onOrderQty) quantity.innerHTML += `<br><img src="/widgets/dabs/onorder.svg">${item.onOrderQty}`;
     }, { once: true });
     result.append(div);
+
+    div.addEventListener('click', () => {
+      window.location.href = `https://independentdrinker.com/utah-dabs/products/${item.sku}`;
+    });
   });
 }
 
