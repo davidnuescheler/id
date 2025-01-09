@@ -58,3 +58,6 @@
    display: none;
 }
 
+.dabs-results [role="button"] {
+    cursor: pointer;
+}

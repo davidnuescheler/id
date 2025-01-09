@@ -27,10 +27,11 @@ function displayResults(search) {
     badge.addEventListener('click', (event) => {
       event.stopPropagation();
       badge.textContent = item.status;
+      badge.role = 'button';
     }, { once: true });
     const quantity = document.createElement('span');
     quantity.className = 'dabs-quantity';
-    const hasMore = (item.warehouseQty || item.onOrderQty) ? '>' : '';
+    const hasMore = (item.warehouseQty || item.onOrderQty) ? ' \u25BE' : '';
     quantity.textContent = `${item.storeQty}${hasMore}`;
     if (item.storeQty < 50 && item.storeQty > 0) {
       div.classList.add('dabs-low');
@@ -39,16 +40,23 @@ function displayResults(search) {
       div.classList.add('dabs-out');
     }
     div.append(quantity);
-    quantity.addEventListener('click', (event) => {
-      event.stopPropagation();
-      if (item.warehouseQty) quantity.innerHTML += `<br><img src="/widgets/dabs/warehouse.svg">${item.warehouseQty}`;
-      if (item.onOrderQty) quantity.innerHTML += `<br><img src="/widgets/dabs/onorder.svg">${item.onOrderQty}`;
-    }, { once: true });
+    if (hasMore) {
+      quantity.role = 'button';
+      quantity.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (item.warehouseQty) quantity.innerHTML += `<br><img src="/widgets/dabs/warehouse.svg">${item.warehouseQty}`;
+        if (item.onOrderQty) quantity.innerHTML += `<br><img src="/widgets/dabs/onorder.svg">${item.onOrderQty}`;
+      }, { once: true });
+    }
+
     result.append(div);
 
-    div.addEventListener('click', () => {
-      window.location.href = `https://independentdrinker.com/utah-dabs/products/${item.sku}`;
-    });
+    if (item.storeQty && item.storeQty < 300) {
+      div.role = 'button';
+      div.addEventListener('click', () => {
+        window.location.href = `https://independentdrinker.com/utah-dabs/products/${item.sku}`;
+      });
+    }
   });
 }
 
