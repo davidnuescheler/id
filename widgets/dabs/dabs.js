@@ -67,7 +67,6 @@ function updateSearchResults(widget) {
   const { value } = widget.querySelector('input[name="search"]');
   const status = widget.querySelector('input[name="status"]').value;
   document.querySelector('.dabs-results').textContent = '';
-  console.log(value, status);
   displayResults(value, status);
   const params = new URLSearchParams();
   if (value) params.set('search', value);
