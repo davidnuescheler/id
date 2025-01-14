@@ -6,10 +6,13 @@ async function loadData() {
   return sorted;
 }
 
-function displayResults(search) {
+function displayResults(search, filterStatus) {
   const result = document.querySelector('.dabs-results');
-  const filtered = search ? window.dabs.filter(
-    (item) => item.name.toLowerCase().includes(search.toLowerCase()),
+  const filtered = search || filterStatus ? window.dabs.filter(
+    (item) => {
+      if (!filterStatus || filterStatus === item.status.split(' ')[0]) return item.name.toLowerCase().includes(search.toLowerCase());
+      return false;
+    },
   ) : window.dabs;
   result.textContent = '';
   filtered.forEach((item, i) => {
@@ -51,7 +54,7 @@ function displayResults(search) {
 
     result.append(div);
 
-    if (item.storeQty && item.storeQty < 300) {
+    if (item.storeQty && item.storeQty < 1000) {
       div.role = 'button';
       div.addEventListener('click', () => {
         window.location.href = `https://independentdrinker.com/utah-dabs/products/${item.sku}`;
@@ -60,27 +63,52 @@ function displayResults(search) {
   });
 }
 
-async function initialLoad(search) {
+function updateSearchResults(widget) {
+  const { value } = widget.querySelector('input[name="search"]');
+  const status = widget.querySelector('input[name="status"]').value;
+  document.querySelector('.dabs-results').textContent = '';
+  console.log(value, status);
+  displayResults(value, status);
+  const params = new URLSearchParams();
+  if (value) params.set('search', value);
+  if (status) params.set('status', status);
+  if (status || value) {
+    window.history.replaceState(null, '', `?${params.toString()}`);
+  } else {
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+}
+
+async function initialLoad(widget) {
   const data = await loadData();
   window.dabs = data;
-  displayResults(search);
+  updateSearchResults(widget);
 }
 
 export default async function decorate(widget) {
-  widget.querySelector('input[name="search"]').addEventListener('input', (event) => {
-    const { value } = event.target;
-    document.querySelector('.dabs-results').textContent = '';
-    displayResults(value);
-    if (value) {
-      window.history.replaceState(null, '', `?search=${value}`);
-    } else {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
+  widget.querySelector('input[name="search"]').addEventListener('input', () => {
+    updateSearchResults(widget);
   });
+  widget.querySelector('input[name="status"]').addEventListener('input', () => {
+    updateSearchResults(widget);
+  });
+  widget.querySelector('input[name="allocated"]').addEventListener('change', (event) => {
+    if (event.target.checked) widget.querySelector('input[name="status"]').value = 'A';
+    else widget.querySelector('input[name="status"]').value = '';
+    updateSearchResults(widget);
+  });
+
   const params = new URLSearchParams(window.location.search);
   const search = params.get('search');
   if (search) {
     widget.querySelector('input[name="search"]').value = search;
   }
-  initialLoad(search);
+  const status = params.get('status');
+  if (status) {
+    widget.querySelector('input[name="status"]').value = status;
+    if (status === 'A') {
+      widget.querySelector('input[name="allocated"]').checked = true;
+    }
+  }
+  initialLoad(widget);
 }

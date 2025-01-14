@@ -61,3 +61,15 @@
 .dabs-results [role="button"] {
     cursor: pointer;
 }
+
+.dabs form {
+    position: relative;
+}
+
+#dabs-allocated input {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    height: 32px;
+    width: 32px;
+}
