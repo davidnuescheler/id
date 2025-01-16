@@ -140,6 +140,24 @@ async function loadEager(doc) {
   }
 }
 
+async function redecorateDabsLocations() {
+  const phones = document.querySelectorAll('.table a[href^="tel:"]');
+  if (phones.length === 0) return;
+  const resp = await fetch('/utah-dabs.json');
+  const { data } = await resp.json();
+  phones.forEach((phone) => {
+    const mapLink = phone.parentElement.querySelector('a[href^="https://maps.google.com"]');
+    if (mapLink) {
+      const location = data.find((item) => item.Phone === phone.href.replace('tel:+1', ''));
+      if (location) {
+        mapLink.href = location.Location;
+      }
+    }
+  });
+}
+
+redecorateDabsLocations();
+
 /**
  * Loads everything that doesn't need to be delayed.
  * @param {Element} doc The container element
@@ -156,6 +174,8 @@ async function loadLazy(doc) {
 
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
+
+  redecorateDabsLocations();
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
