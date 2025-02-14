@@ -1,6 +1,10 @@
+div.section.video-container {
+  padding-top: 0;
+}
+
 .video {
   text-align: center;
-  margin: 32px auto;
+  margin: 0 -16px;
 }
 
 .video[data-embed-is-loaded="false"]:not(.placeholder) {
