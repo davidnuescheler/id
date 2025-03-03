@@ -1,5 +1,9 @@
 {
     "project": "id",
+    "host": "https://independentdrinker.org/",
+    "previewHost": "main--id--davidnuescheler.aem.page",
+    "liveHost": "main--id--davidnuescheler.aem.live",
+  
     "plugins": [
       {
         "id": "review",
