@@ -25,7 +25,7 @@ export default async function decorate(widget) {
         a.textContent = cocktail;
         li.appendChild(a);
       } else {
-        li.textContent = cocktail;
+        li.innerHTML = `${cocktail} <a href="https://www.google.com/search?q=${encodeURIComponent(cocktail)}+cocktail">&gt;&gt;</a>`;
       }
       ul.appendChild(li);
     });
