@@ -12,3 +12,8 @@ footer .footer {
 footer .footer p {
   margin: 0;
 }
+
+footer a:any-link {
+  text-decoration: underline;
+}
+
