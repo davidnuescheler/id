@@ -35,7 +35,7 @@ async function createDrinksCards() {
   const resp = await fetch('/pages.json');
   const json = await resp.json();
   const drinks = json.data
-    .filter((e) => /\/drinks\/./.test(e.path))
+    .filter((e) => /^\/drinks\/./.test(e.path))
     .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
 
   const cards = [];
