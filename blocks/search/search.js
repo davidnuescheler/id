@@ -80,7 +80,7 @@ export async function fetchData(source) {
     return null;
   }
 
-  return json.data;
+  return json.data.filter((item) => item.path.startsWith('/drinks/'));
 }
 
 function renderResult(result, searchTerms, titleTag) {
