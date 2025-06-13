@@ -27,7 +27,7 @@
           "preview",
           "live"
         ],
-        "url": "http://orhpaned-pages--helix-labs-website--adobe.aem.live/tools/page-status/orphaned-pages-popover.html",
+        "url": "https://labs.aem.live/tools/page-status/orphaned-pages-popover.html",
         "isPopover": true,
         "popoverRect": "width:200px; height: 200px",
         "passConfig": true,
