@@ -21,7 +21,7 @@ export default async function decorate(widget) {
       const drink = drinks.find((page) => page.title === cocktail);
       if (drink) {
         const a = document.createElement('a');
-        a.href = `/drinks/${drink.path}`;
+        a.href = `${drink.path}`;
         a.textContent = cocktail;
         li.appendChild(a);
       } else {
