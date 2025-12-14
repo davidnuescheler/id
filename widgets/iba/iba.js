@@ -106,11 +106,38 @@ function createCollectionSection(collection, index, drinks) {
     if (drink) {
       const link = document.createElement('a');
       link.href = drink.path;
-      link.textContent = cocktail;
+
+      // Create content container
+      const contentContainer = document.createElement('div');
+      contentContainer.className = 'iba-cocktail-content';
+
+      // Add image if available
+      if (drink.image) {
+        const image = document.createElement('img');
+        image.src = drink.image;
+        image.alt = cocktail;
+        image.className = 'iba-cocktail-image';
+        image.loading = 'lazy';
+        contentContainer.appendChild(image);
+      }
+
+      // Add cocktail name
+      const nameElement = document.createElement('span');
+      nameElement.className = 'iba-cocktail-name';
+      nameElement.textContent = cocktail;
+      contentContainer.appendChild(nameElement);
+
+      link.appendChild(contentContainer);
       listItem.appendChild(link);
     } else {
+      const contentContainer = document.createElement('div');
+      contentContainer.className = 'iba-cocktail-content';
+
       const cocktailName = document.createElement('span');
+      cocktailName.className = 'iba-cocktail-name';
       cocktailName.textContent = cocktail;
+      contentContainer.appendChild(cocktailName);
+
       const externalLink = document.createElement('a');
       externalLink.href = `https://www.google.com/search?q=${encodeURIComponent(cocktail)}+cocktail`;
       externalLink.textContent = '→';
@@ -118,7 +145,7 @@ function createCollectionSection(collection, index, drinks) {
       externalLink.target = '_blank';
       externalLink.setAttribute('aria-label', `Search for ${cocktail} recipe`);
 
-      listItem.appendChild(cocktailName);
+      listItem.appendChild(contentContainer);
       listItem.appendChild(externalLink);
     }
 
