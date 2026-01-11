@@ -56,6 +56,12 @@
   list-style: none;
 }
 
+@media (min-width: 850px) {
+  .iba-toc-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .iba-toc-item {
   background: white;
   border-radius: 8px;
@@ -87,7 +93,7 @@
 /* Collections */
 .iba-collection {
   margin-bottom: 40px;
-  scroll-margin-top: 20px;
+  scroll-margin-top: calc(var(--header-height, 64px) + 20px);
 }
 
 .iba-collection-header {

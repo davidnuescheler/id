@@ -4,6 +4,14 @@ async function getData(path) {
   return json.data;
 }
 
+function createCollectionId(collection) {
+  const slug = `${collection.Year}-${collection.Category}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return `iba-${slug}`;
+}
+
 function createProgressCircle(percentage) {
   const circle = document.createElement('div');
   circle.className = 'iba-progress-circle';
@@ -26,8 +34,9 @@ function createTableOfContents(collections, drinks) {
   const tocList = document.createElement('ul');
   tocList.className = 'iba-toc-list';
 
-  collections.forEach((collection, index) => {
+  collections.forEach((collection) => {
     const cocktails = collection.Cocktails.split(',').map((cocktail) => cocktail.trim());
+    const collectionId = createCollectionId(collection);
 
     // Calculate coverage for this collection
     const availableInCollection = cocktails.filter(
@@ -37,7 +46,7 @@ function createTableOfContents(collections, drinks) {
 
     const tocItem = document.createElement('li');
     tocItem.className = 'iba-toc-item';
-    tocItem.setAttribute('data-target', `collection-${index}`);
+    tocItem.setAttribute('data-target', collectionId);
 
     const tocItemTitle = document.createElement('div');
     tocItemTitle.className = 'iba-toc-item-title';
@@ -54,10 +63,11 @@ function createTableOfContents(collections, drinks) {
     tocItem.appendChild(progressCircle);
     tocList.appendChild(tocItem);
 
-    // Add click handler for smooth scrolling
+    // Add click handler for smooth scrolling and hash update
     tocItem.addEventListener('click', () => {
-      const targetSection = document.getElementById(`collection-${index}`);
+      const targetSection = document.getElementById(collectionId);
       if (targetSection) {
+        window.history.pushState(null, '', `#${collectionId}`);
         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
@@ -68,10 +78,10 @@ function createTableOfContents(collections, drinks) {
   return tocContainer;
 }
 
-function createCollectionSection(collection, index, drinks) {
+function createCollectionSection(collection, drinks) {
   const section = document.createElement('section');
   section.className = 'iba-collection';
-  section.id = `collection-${index}`;
+  section.id = createCollectionId(collection);
 
   const header = document.createElement('div');
   header.className = 'iba-collection-header';
@@ -237,8 +247,8 @@ export default async function decorate(widget) {
   const collectionsContainer = document.createElement('div');
   collectionsContainer.className = 'iba-collections';
 
-  iba.forEach((collection, index) => {
-    const section = createCollectionSection(collection, index, drinks);
+  iba.forEach((collection) => {
+    const section = createCollectionSection(collection, drinks);
     collectionsContainer.appendChild(section);
   });
 
@@ -249,4 +259,15 @@ export default async function decorate(widget) {
   widget.appendChild(toc);
   widget.appendChild(collectionsContainer);
   widget.appendChild(stats);
+
+  // Handle initial hash navigation
+  if (window.location.hash) {
+    const targetId = window.location.hash.slice(1);
+    const targetSection = document.getElementById(targetId);
+    if (targetSection) {
+      setTimeout(() => {
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }
 }
