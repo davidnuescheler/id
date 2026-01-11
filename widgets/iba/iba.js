@@ -10,6 +10,12 @@ function createProgressCircle(percentage) {
   const angle = (percentage / 100) * 360;
   circle.style.setProperty('--progress-angle', `${angle}deg`);
   circle.setAttribute('title', `${Math.round(percentage)}% coverage`);
+
+  const percentText = document.createElement('span');
+  percentText.className = 'iba-progress-percent';
+  percentText.textContent = Math.round(percentage);
+  circle.appendChild(percentText);
+
   return circle;
 }
 
@@ -39,7 +45,7 @@ function createTableOfContents(collections, drinks) {
 
     const tocItemCount = document.createElement('div');
     tocItemCount.className = 'iba-toc-item-count';
-    tocItemCount.textContent = `${cocktails.length} cocktails`;
+    tocItemCount.textContent = `${availableInCollection}/${cocktails.length} cocktails`;
 
     const progressCircle = createProgressCircle(coveragePercentage);
 

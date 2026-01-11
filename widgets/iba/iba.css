@@ -35,6 +35,17 @@
   border-radius: 50%;
 }
 
+.iba-progress-percent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%);
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--link-color, #3498db);
+  z-index: 1;
+}
+
 
 .iba-toc-list {
   display: grid;
