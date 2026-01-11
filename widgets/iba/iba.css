@@ -56,7 +56,7 @@
   list-style: none;
 }
 
-@media (min-width: 850px) {
+@media (width >= 850px) {
   .iba-toc-list {
     grid-template-columns: repeat(3, 1fr);
   }
