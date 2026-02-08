@@ -30,7 +30,7 @@ export async function checkIBA(cocktail) {
     const cocktails = collection.Cocktails.split(',').map((c) => c.trim());
     if (cocktails.includes(cocktail)) {
       status.collections.push({ year: collection.Year, category: collection.Category });
-      if (collection.Year === '2020') status.current = true;
+      if (collection.Year === '2024') status.current = true;
     }
   });
   return (status);
