@@ -6,6 +6,15 @@ sampleRUM('cwv');
 
 // add more delayed functionality here
 
+const initContentScore = async () => {
+  const { init } = await import('../tools/content-score/scripts.js');
+  await init();
+};
+
+if (window.location.hostname === 'localhost' || window.location.hostname.endsWith('.aem.page')) {
+  initContentScore();
+}
+
 async function redecorateDabsLocations() {
   const phones = document.querySelectorAll('.table a[href^="tel:"]');
   if (phones.length === 0) return;
