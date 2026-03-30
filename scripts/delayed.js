@@ -7,12 +7,16 @@ sampleRUM('cwv');
 // add more delayed functionality here
 
 const initContentScore = async () => {
-  const { init } = await import('../tools/content-score/scripts.js');
+  const CONTENT_SCORE = 'https://tools.aem.live/tools/content-score/src/scripts.js';
+  const { init } = await import(CONTENT_SCORE);
   await init();
 };
 
-if (window.location.hostname === 'localhost' || window.location.hostname.endsWith('.aem.page')) {
-  initContentScore();
+const sk = document.querySelector('aem-sidekick');
+
+if (sk) initContentScore();
+else {
+  document.addEventListener('sidekick-ready', initContentScore, { once: true });
 }
 
 async function redecorateDabsLocations() {

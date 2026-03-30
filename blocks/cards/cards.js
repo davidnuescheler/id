@@ -37,6 +37,7 @@ async function createDrinksCards() {
   const json = await resp.json();
   const drinks = json.data
     .filter((e) => /^\/drinks\/./.test(e.path))
+    .filter((e) => e.image && String(e.image).trim())
     .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
 
   const cards = [];
@@ -60,6 +61,7 @@ export default async function decorate(block) {
   /* change to ul, li */
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
+    if (!row.querySelector('picture')) return;
     const li = document.createElement('li');
     while (row.firstElementChild) li.append(row.firstElementChild);
     [...li.children].forEach((div) => {
