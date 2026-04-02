@@ -1,6 +1,11 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { checkIBA } from '../../scripts/scripts.js';
 
+/** @param {string} [src] */
+function isDefaultMetaImage(src) {
+  return typeof src === 'string' && src.includes('default-meta-image.png');
+}
+
 /**
  * Builds cards block for drinks index.
  */
@@ -38,6 +43,7 @@ async function createDrinksCards() {
   const drinks = json.data
     .filter((e) => /^\/drinks\/./.test(e.path))
     .filter((e) => e.image && String(e.image).trim())
+    .filter((e) => !isDefaultMetaImage(String(e.image)))
     .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
 
   const cards = [];
@@ -61,7 +67,8 @@ export default async function decorate(block) {
   /* change to ul, li */
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
-    if (!row.querySelector('picture')) return;
+    const picImg = row.querySelector('picture img');
+    if (!picImg || isDefaultMetaImage(picImg.getAttribute('src') || picImg.src)) return;
     const li = document.createElement('li');
     while (row.firstElementChild) li.append(row.firstElementChild);
     [...li.children].forEach((div) => {
