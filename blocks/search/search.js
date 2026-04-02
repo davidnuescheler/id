@@ -6,6 +6,11 @@ import {
 
 const searchParams = new URLSearchParams(window.location.search);
 
+/** @param {string} [src] */
+function isDefaultMetaImage(src) {
+  return typeof src === 'string' && src.includes('default-meta-image.png');
+}
+
 function findNextHeading(el) {
   let preceedingEl = el.parentElement.previousElement || el.parentElement.parentElement;
   let h = 'H2';
@@ -80,7 +85,10 @@ export async function fetchData(source) {
     return null;
   }
 
-  return json.data.filter((item) => item.path.startsWith('/drinks/'));
+  return json.data
+    .filter((item) => item.path.startsWith('/drinks/'))
+    .filter((item) => item.image && String(item.image).trim())
+    .filter((item) => !isDefaultMetaImage(String(item.image)));
 }
 
 function renderResult(result, searchTerms, titleTag) {
