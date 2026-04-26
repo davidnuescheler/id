@@ -65,7 +65,7 @@ function displayResults(search, filterStatus) {
 
 function updateSearchResults(widget) {
   const { value } = widget.querySelector('input[name="search"]');
-  const status = widget.querySelector('input[name="status"]').value;
+  const status = widget.querySelector('select[name="status"]').value;
   document.querySelector('.dabs-results').textContent = '';
   displayResults(value, status);
   const params = new URLSearchParams();
@@ -88,12 +88,7 @@ export default async function decorate(widget) {
   widget.querySelector('input[name="search"]').addEventListener('input', () => {
     updateSearchResults(widget);
   });
-  widget.querySelector('input[name="status"]').addEventListener('input', () => {
-    updateSearchResults(widget);
-  });
-  widget.querySelector('input[name="allocated"]').addEventListener('change', (event) => {
-    if (event.target.checked) widget.querySelector('input[name="status"]').value = 'A';
-    else widget.querySelector('input[name="status"]').value = '';
+  widget.querySelector('select[name="status"]').addEventListener('change', () => {
     updateSearchResults(widget);
   });
 
@@ -103,11 +98,8 @@ export default async function decorate(widget) {
     widget.querySelector('input[name="search"]').value = search;
   }
   const status = params.get('status');
-  if (status) {
-    widget.querySelector('input[name="status"]').value = status;
-    if (status === 'A') {
-      widget.querySelector('input[name="allocated"]').checked = true;
-    }
+  if (status !== null && ['', 'L', 'A', 'S', 'T'].includes(status)) {
+    widget.querySelector('select[name="status"]').value = status;
   }
   initialLoad(widget);
 }

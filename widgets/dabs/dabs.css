@@ -5,13 +5,18 @@
     border-bottom: 1px solid var(--light-color);
 }
 
-.dabs input {
-    width: calc(100% - 32px);
-    padding: 16px;
+.dabs-search-label {
+    display: block;
+}
+
+.dabs-search-label input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 56px 16px 16px;
     border: 1px solid var(--light-color);
     border-radius: 8px;
     font-size: 30px;
-    background-color: var(--light-color)
+    background-color: var(--light-color);
 }
 
 .dabs-results div.dabs-out {
@@ -66,10 +71,16 @@
     position: relative;
 }
 
-#dabs-allocated input {
+.dabs-type-wrap select {
     position: absolute;
     top: 16px;
     right: 16px;
-    height: 32px;
-    width: 32px;
+    height: 48px;
+    min-width: 48px;
+    padding: 0 8px;
+    border: 1px solid var(--light-color);
+    border-radius: 8px;
+    font-size: 20px;
+    background-color: var(--light-color);
+    cursor: pointer;
 }

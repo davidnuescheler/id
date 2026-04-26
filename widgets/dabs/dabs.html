@@ -1,12 +1,16 @@
 <form>
-    <label>
+    <label class="dabs-search-label">
         <input type="text" name="search" placeholder="Start typing...">
     </label>
-    <label id="dabs-allocated"> 
-        <input type="checkbox" name="allocated" value="A">
-        <span class="dabs-checkmark"></span>
+    <label id="dabs-type" class="dabs-type-wrap">
+        <select name="status" aria-label="Filter by type">
+            <option value=""></option>
+            <option value="L">L</option>
+            <option value="A">A</option>
+            <option value="S">S</option>
+            <option value="T">T</option>
+        </select>
     </label>
-    <input type="hidden" name="status">
 </form>
 <div class="dabs-results">
 </div>

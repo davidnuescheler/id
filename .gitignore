@@ -9,3 +9,5 @@ helix-importer-ui
 .idea
 
 content
+
+.hlx/.da-token.json
