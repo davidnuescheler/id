@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>NYC — North America's 50 Best Bars 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="NYC — North America's 50 Best Bars 2025">
+  <meta name="description" content="Explorer for all 18 New York bars on the North America's 50 Best Bars 2025 list.">
+  <script src="/scripts/aem.js" type="module"></script>
+  <script src="/scripts/scripts.js" type="module"></script>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css">
+  <style>
+    body.explorer-page {
+      overflow: hidden;
+    }
+
+    main.explorer {
+      padding: 0;
+    }
+
+    main.explorer .section {
+      padding: 0;
+      max-width: none;
+      margin: 0;
+    }
+
+    main.explorer .section > div {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .explorer-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 45vh 1fr;
+      height: calc(100vh - var(--header-height));
+      min-height: 500px;
+      isolation: isolate;
+    }
+
+    @media (width >= 900px) {
+      .explorer-wrap {
+        grid-template-columns: minmax(360px, 420px) 1fr;
+        grid-template-rows: 1fr;
+      }
+    }
+
+    #explorer-map {
+      position: relative;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .explorer-list {
+      overflow-y: auto;
+      border-right: 1px solid var(--dark-color);
+      background: var(--background-color);
+    }
+
+    .explorer-list-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--dark-color);
+      position: sticky;
+      top: 0;
+      background: var(--background-color);
+      z-index: 2;
+    }
+
+    .explorer-list-header h1 {
+      font-size: var(--heading-font-size-m);
+      margin: 0 0 4px;
+    }
+
+    .explorer-list-header p {
+      margin: 0;
+      font-size: var(--body-font-size-xs);
+      color: #666;
+    }
+
+    .explorer-bar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--light-color);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .explorer-bar:hover {
+      background: var(--light-color);
+    }
+
+    .explorer-bar.active {
+      background: #fff5f2;
+      border-left: 4px solid var(--link-color);
+      padding-left: 16px;
+    }
+
+    .explorer-bar-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .explorer-rank {
+      font-family: var(--fixed-font-family);
+      font-weight: 700;
+      color: var(--link-color);
+      font-size: var(--body-font-size-s);
+      flex-shrink: 0;
+    }
+
+    .explorer-rank.top {
+      background: var(--link-color);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: var(--body-font-size-xs);
+    }
+
+    .explorer-name {
+      font-weight: 600;
+      font-size: var(--body-font-size-s);
+      line-height: 1.3;
+    }
+
+    .explorer-address {
+      font-size: var(--body-font-size-xs);
+      color: #555;
+      margin: 0 0 6px;
+    }
+
+    .explorer-note {
+      font-size: var(--body-font-size-xs);
+      color: #444;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .mapboxgl-popup {
+      max-width: 280px !important;
+    }
+
+    .mapboxgl-popup-content {
+      font-family: var(--body-font-family);
+      font-size: var(--body-font-size-xs);
+      line-height: 1.45;
+      padding: 14px 16px;
+      border-radius: 8px;
+    }
+
+    .mapboxgl-popup-content strong {
+      display: block;
+      font-size: var(--body-font-size-s);
+      margin-bottom: 4px;
+    }
+
+    .marker-pin {
+      width: 30px;
+      height: 30px;
+      border-radius: 50% 50% 50% 0;
+      background: var(--link-color);
+      transform: rotate(-45deg);
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .marker-pin.top {
+      background: #d4af37;
+      width: 36px;
+      height: 36px;
+    }
+
+    .marker-pin:hover {
+      transform: rotate(-45deg) scale(1.15);
+    }
+
+    .marker-pin span {
+      transform: rotate(45deg);
+      color: white;
+      font-weight: 700;
+      font-size: 11px;
+      font-family: var(--fixed-font-family);
+    }
+  </style>
+</head>
+
+<body>
+  <header></header>
+  <main class="explorer">
+    <div class="section">
+      <div class="explorer-wrap">
+        <aside class="explorer-list" id="explorer-list">
+          <div class="explorer-list-header">
+            <h1>NYC — 50 Best Bars 2025</h1>
+            <p>18 New York bars from North America's 50 Best Bars 2025.</p>
+          </div>
+        </aside>
+        <div id="explorer-map"></div>
+      </div>
+    </div>
+  </main>
+  <footer></footer>
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+  <script type="module">
+    import { fetchPlaceholders } from '/scripts/aem.js';
+
+    const BARS = [
+      { rank: 1, top: true, name: 'Sip & Guzzle', address: '29 Cornelia St, West Village', note: 'Top-ranked bar in North America. Japanese-influenced cocktails. Reservations strongly recommended. Open daily 4pm–1/2am.', lat: 40.7314775, lng: -74.0024921 },
+      { rank: 3, top: true, name: 'Bar Snack', address: '92 2nd Ave, East Village', note: 'Tiny wood-lined spot punching above its weight. Walk-in friendly weekday afternoons. Open daily from 2pm.', lat: 40.7269233, lng: -73.9885382 },
+      { rank: 4, top: true, name: 'Schmuck', address: '97 1st Ave, East Village', note: 'Cozy living-room vibe with serious martini focus. Closed Mondays. Open Tue–Sun 4pm–1am.', lat: 40.726376, lng: -73.9864745 },
+      { rank: 9, top: true, name: 'Superbueno', address: '13 1st Ave, East Village', note: 'Mexican-influenced cocktails — the roasted corn sour and mole negroni are signatures. Open daily.', lat: 40.7234473, lng: -73.9885737 },
+      { rank: 15, name: 'Clemente Bar', address: '11 Madison Ave, NoMad', note: "Daniel Humm's bar above Eleven Madison Park. Vegetarian bar snacks, cinematic interior. Open daily 5pm–1am. Reservations recommended.", lat: 40.7416326, lng: -73.9870711 },
+      { rank: 23, name: "Martiny's", address: '121 E 17th St, Union Square', note: 'Reservation-only Japanese-style martini bar in a townhouse. Try the Caprese or Tea Ceremony. Open daily 6pm–1am.', lat: 40.7361286, lng: -73.9876467 },
+      { rank: 31, name: "Angel's Share", address: '45 Grove St, West Village', note: 'The legendary speakeasy. Walk-ins only — expect a wait. Closed Sun/Mon. Open Tue–Sat 5pm–midnight.', lat: 40.7329799, lng: -74.0042594 },
+      { rank: 33, name: 'Overstory', address: '70 Pine St, 64th floor, FiDi', note: 'Sweeping skyline views. Arrive 30–60 min before sunset to skip the worst of the queue. One-cocktail-per-person minimum.', lat: 40.7065047, lng: -74.0077715 },
+      { rank: 35, name: 'Double Chicken Please', address: '115 Allen St, Lower East Side', note: 'Two rooms: front (Free Range) is walk-in cocktails & chicken, back (Coop) is reservation-only tasting experience. Closed Mondays.', lat: 40.719592, lng: -73.9904612 },
+      { rank: 36, name: 'Bar Madonna', address: '367 Metropolitan Ave, Williamsburg (Brooklyn)', note: 'The smashed meatball parm and ossobuco croquettes are as much a draw as the cocktails. Open daily.', lat: 40.7141979, lng: -73.9556832 },
+      { rank: 37, name: 'Attaboy', address: '134 Eldridge St, Lower East Side', note: 'No menu — tell the bartender what you like. Open daily until 3am. Walk-in only, expect a wait.', lat: 40.718882, lng: -73.99138 },
+      { rank: 40, name: 'Maison Premiere', address: '298 Bedford Ave, Williamsburg (Brooklyn)', note: 'Oyster + absinthe bar with an enchanting backyard. Great for a long, lingering visit. Open daily from noon (10am weekends).', lat: 40.7142687, lng: -73.9616646 },
+      { rank: 45, name: 'Employees Only', address: '510 Hudson St, West Village', note: 'Late-night classic — open until 4am every night. Tableside steak tartare and a midnight burlesque show.', lat: 40.7334346, lng: -74.0061109 },
+      { rank: 52, name: 'Katana Kitten', address: '531 Hudson St, West Village', note: 'Japanese-American highballs and bar snacks. Two doors down from Employees Only — easy to pair.', lat: 40.7342547, lng: -74.0064852 },
+      { rank: 58, name: 'Dante', address: '551 Hudson St, West Village', note: 'All-day spot with legendary negronis. Open from 10am — great for an aperitivo or a meal.', lat: 40.7352026, lng: -74.0062505 },
+      { rank: 66, name: 'Seed Library', address: '51 E 30th St, NoMad (Hotel Park Ave)', note: "Mr Lyan's NYC outpost — '70s conversation-pit vibe, lacto/koji-fermented cocktails. Closed Mondays.", lat: 40.7447717, lng: -73.9834136 },
+      { rank: 71, name: 'The Portrait Bar', address: '1 W 28th St, NoMad (The Fifth Avenue Hotel)', note: 'Neighborhood-themed cocktails (Mapo District, Marrakesh, etc.). Reservations a must. Open daily.', lat: 40.7450774, lng: -73.9877319 },
+      { rank: 77, name: "Shinji's", address: '37 W 20th St, Flatiron', note: 'Theatrical speakeasy with liquid-nitrogen flourishes. 90-minute reservation cap. Closed Mondays.', lat: 40.7407505, lng: -73.9931495 },
+    ];
+
+    function escapeHTML(s) {
+      return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function initExplorer() {
+      const placeholders = await fetchPlaceholders();
+      mapboxgl.accessToken = placeholders.mapboxToken;
+
+      const bounds = new mapboxgl.LngLatBounds();
+      BARS.forEach((bar) => bounds.extend([bar.lng, bar.lat]));
+
+      const map = new mapboxgl.Map({
+        container: 'explorer-map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        bounds,
+        fitBoundsOptions: { padding: 60 },
+      });
+
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+
+      const list = document.getElementById('explorer-list');
+      const markers = {};
+      const popups = {};
+      const cards = {};
+      let activePopup = null;
+
+      function selectBar(rank) {
+        Object.values(cards).forEach((c) => c.classList.remove('active'));
+        const card = cards[rank];
+        if (card) {
+          card.classList.add('active');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+
+      BARS.forEach((bar) => {
+        const el = document.createElement('div');
+        el.className = `marker-pin${bar.top ? ' top' : ''}`;
+        el.innerHTML = `<span>${bar.rank}</span>`;
+
+        const popup = new mapboxgl.Popup({ offset: bar.top ? 24 : 20, closeButton: false })
+          .setHTML(`<strong>#${bar.rank} ${escapeHTML(bar.name)}</strong>${escapeHTML(bar.address)}<br><br>${escapeHTML(bar.note)}`);
+
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([bar.lng, bar.lat])
+          .setPopup(popup)
+          .addTo(map);
+
+        el.addEventListener('click', () => selectBar(bar.rank));
+
+        markers[bar.rank] = marker;
+        popups[bar.rank] = popup;
+
+        const card = document.createElement('div');
+        card.className = 'explorer-bar';
+        card.dataset.rank = bar.rank;
+        card.innerHTML = `
+          <div class="explorer-bar-head">
+            <span class="explorer-rank${bar.top ? ' top' : ''}">#${bar.rank}</span>
+            <span class="explorer-name">${escapeHTML(bar.name)}</span>
+          </div>
+          <p class="explorer-address">${escapeHTML(bar.address)}</p>
+          <p class="explorer-note">${escapeHTML(bar.note)}</p>
+        `;
+        card.addEventListener('click', () => {
+          selectBar(bar.rank);
+          if (activePopup && activePopup !== popup) activePopup.remove();
+          map.flyTo({ center: [bar.lng, bar.lat], zoom: 16, speed: 1.4 });
+          marker.togglePopup();
+          activePopup = popup;
+        });
+        list.appendChild(card);
+        cards[bar.rank] = card;
+      });
+
+      window.addEventListener('resize', () => map.resize());
+
+      const container = document.getElementById('explorer-map');
+      const ro = new ResizeObserver(() => map.resize());
+      ro.observe(container);
+      map.once('load', () => map.resize());
+    }
+
+    function deferredInit() {
+      requestAnimationFrame(() => requestAnimationFrame(initExplorer));
+    }
+
+    function whenVisible() {
+      document.body.classList.add('explorer-page');
+      if (document.body.classList.contains('appear')) {
+        deferredInit();
+        return;
+      }
+      const obs = new MutationObserver(() => {
+        if (document.body.classList.contains('appear')) {
+          obs.disconnect();
+          deferredInit();
+        }
+      });
+      obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', whenVisible);
+    } else {
+      whenVisible();
+    }
+  </script>
+</body>
+
+</html>
