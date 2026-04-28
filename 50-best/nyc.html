@@ -149,6 +149,18 @@
       margin: 0 0 6px;
     }
 
+    .address-link {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dotted #aaa;
+    }
+
+    .address-link:hover {
+      color: var(--link-color);
+      border-bottom-color: var(--link-color);
+      text-decoration: none;
+    }
+
     .explorer-note {
       font-size: var(--body-font-size-xs);
       color: #444;
@@ -219,6 +231,34 @@
       font-family: var(--fixed-font-family);
     }
 
+    .marker-pin.active {
+      transform: rotate(-45deg) scale(1.35);
+      z-index: 10;
+      animation: marker-pulse 1.4s ease-out infinite;
+    }
+
+    .marker-pin.top.active {
+      animation-name: marker-pulse-gold;
+    }
+
+    @keyframes marker-pulse {
+      0% { box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 0 0 0 rgba(166,33,3,0.5); }
+      100% { box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 0 0 18px rgba(166,33,3,0); }
+    }
+
+    @keyframes marker-pulse-gold {
+      0% { box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 0 0 0 rgba(212,175,55,0.6); }
+      100% { box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 0 0 18px rgba(212,175,55,0); }
+    }
+
+    .popup-mini {
+      padding: 8px 14px;
+      font-family: var(--body-font-family);
+      font-size: var(--body-font-size-xs);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
     .user-pin {
       width: 24px;
       height: 24px;
@@ -286,6 +326,36 @@
       border-radius: 12px;
       white-space: nowrap;
     }
+
+    .bar-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
+      margin-top: 8px;
+    }
+
+    .bar-link {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--link-color);
+      padding: 3px 10px;
+      border: 1px solid var(--dark-color);
+      border-radius: 12px;
+      text-decoration: none;
+      white-space: nowrap;
+      background: var(--background-color);
+    }
+
+    .bar-link:hover {
+      background: var(--link-color);
+      color: white;
+      border-color: var(--link-color);
+      text-decoration: none;
+    }
+
+    .mapboxgl-popup-content .bar-links {
+      margin-top: 10px;
+    }
   </style>
 </head>
 
@@ -318,25 +388,47 @@
     const IMG_BASE = 'https://www.theworlds50best.com/stories/filestore/jpg/';
 
     const BARS = [
-      { rank: 1, top: true, name: 'Sip & Guzzle', address: '29 Cornelia St, West Village', note: 'Top-ranked bar in North America. Japanese-influenced cocktails. Reservations strongly recommended. Open daily 4pm–1/2am.', lat: 40.7314775, lng: -74.0024921, img: 'Sip Guzzle-hero_NA50BB26-LIP.jpg' },
-      { rank: 3, top: true, name: 'Bar Snack', address: '92 2nd Ave, East Village', note: 'Tiny wood-lined spot punching above its weight. Walk-in friendly weekday afternoons. Open daily from 2pm.', lat: 40.7269233, lng: -73.9885382, img: 'Bar Snack-hero_NA50BB26-LIP.jpg' },
-      { rank: 4, top: true, name: 'Schmuck', address: '97 1st Ave, East Village', note: 'Cozy living-room vibe with serious martini focus. Closed Mondays. Open Tue–Sun 4pm–1am.', lat: 40.726376, lng: -73.9864745, img: 'Schmuck_NA50BB26-LIP.jpg' },
-      { rank: 9, top: true, name: 'Superbueno', address: '13 1st Ave, East Village', note: 'Mexican-influenced cocktails — the roasted corn sour and mole negroni are signatures. Open daily.', lat: 40.7234473, lng: -73.9885737, img: 'Superbueno-hero_NA50BB26-LIP.jpg' },
-      { rank: 15, name: 'Clemente Bar', address: '11 Madison Ave, NoMad', note: "Daniel Humm's bar above Eleven Madison Park. Vegetarian bar snacks, cinematic interior. Open daily 5pm–1am. Reservations recommended.", lat: 40.7416326, lng: -73.9870711, img: 'Clemente Bar-hero_NA50BB26-LIP.jpg' },
-      { rank: 23, name: "Martiny's", address: '121 E 17th St, Union Square', note: 'Reservation-only Japanese-style martini bar in a townhouse. Try the Caprese or Tea Ceremony. Open daily 6pm–1am.', lat: 40.7361286, lng: -73.9876467, img: 'Martinys-hero_NA50BB26-LIP.jpg' },
-      { rank: 31, name: "Angel's Share", address: '45 Grove St, West Village', note: 'The legendary speakeasy. Walk-ins only — expect a wait. Closed Sun/Mon. Open Tue–Sat 5pm–midnight.', lat: 40.7329799, lng: -74.0042594, img: 'Angels Share-hero_NA50BB26-LIP.jpg' },
-      { rank: 33, name: 'Overstory', address: '70 Pine St, 64th floor, FiDi', note: 'Sweeping skyline views. Arrive 30–60 min before sunset to skip the worst of the queue. One-cocktail-per-person minimum.', lat: 40.7065047, lng: -74.0077715, img: 'Overstory-hero_NA50BB26-LIP.jpg' },
-      { rank: 35, name: 'Double Chicken Please', address: '115 Allen St, Lower East Side', note: 'Two rooms: front (Free Range) is walk-in cocktails & chicken, back (Coop) is reservation-only tasting experience. Closed Mondays.', lat: 40.719592, lng: -73.9904612, img: 'DCP-2_NA50BB26-LIP.JPG' },
-      { rank: 36, name: 'Bar Madonna', address: '367 Metropolitan Ave, Williamsburg (Brooklyn)', note: 'The smashed meatball parm and ossobuco croquettes are as much a draw as the cocktails. Open daily.', lat: 40.7141979, lng: -73.9556832, img: 'Bar Madonna-hero_NA50BB26-LIP.jpg' },
-      { rank: 37, name: 'Attaboy', address: '134 Eldridge St, Lower East Side', note: 'No menu — tell the bartender what you like. Open daily until 3am. Walk-in only, expect a wait.', lat: 40.718882, lng: -73.99138, img: 'Attaboy-hero_NA50BB26-LIP.jpg' },
-      { rank: 40, name: 'Maison Premiere', address: '298 Bedford Ave, Williamsburg (Brooklyn)', note: 'Oyster + absinthe bar with an enchanting backyard. Great for a long, lingering visit. Open daily from noon (10am weekends).', lat: 40.7142687, lng: -73.9616646, img: 'Maison Premiere-hero_NA50BB26-LIP.jpg' },
-      { rank: 45, name: 'Employees Only', address: '510 Hudson St, West Village', note: 'Late-night classic — open until 4am every night. Tableside steak tartare and a midnight burlesque show.', lat: 40.7334346, lng: -74.0061109, img: 'Employees Only-hero_NA50BB26-LIP.jpg' },
-      { rank: 52, name: 'Katana Kitten', address: '531 Hudson St, West Village', note: 'Japanese-American highballs and bar snacks. Two doors down from Employees Only — easy to pair.', lat: 40.7342547, lng: -74.0064852, img: 'KatanaKitten-Interior-JohnShyloski-2_NA50BB26-51-100-LIP.jpg' },
-      { rank: 58, name: 'Dante', address: '551 Hudson St, West Village', note: 'All-day spot with legendary negronis. Open from 10am — great for an aperitivo or a meal.', lat: 40.7352026, lng: -74.0062505, img: 'Dante Negroni_NA50BB26-51-100-LIP.jpg' },
-      { rank: 66, name: 'Seed Library', address: '51 E 30th St, NoMad (Hotel Park Ave)', note: "Mr Lyan's NYC outpost — '70s conversation-pit vibe, lacto/koji-fermented cocktails. Closed Mondays.", lat: 40.7447717, lng: -73.9834136, img: 'Seed library nyc_NA50BB26-51-100-LIP.jpg' },
-      { rank: 71, name: 'The Portrait Bar', address: '1 W 28th St, NoMad (The Fifth Avenue Hotel)', note: 'Neighborhood-themed cocktails (Mapo District, Marrakesh, etc.). Reservations a must. Open daily.', lat: 40.7450774, lng: -73.9877319, img: 'The Portrait Bar_NA50BB26-51-100-LIP.jpeg' },
-      { rank: 77, name: "Shinji's", address: '37 W 20th St, Flatiron', note: 'Theatrical speakeasy with liquid-nitrogen flourishes. 90-minute reservation cap. Closed Mondays.', lat: 40.7407505, lng: -73.9931495, img: 'Shinjis-credit Joanna Lin_NA50BB26-51-100-LIP.jpg' },
+      { rank: 1, top: true, name: 'Sip & Guzzle', address: '29 Cornelia St, West Village', note: 'Top-ranked bar in North America. Japanese-influenced cocktails. Reservations strongly recommended. Open daily 4pm–1/2am.', lat: 40.7314775, lng: -74.0024921, img: 'Sip Guzzle-hero_NA50BB26-LIP.jpg', website: 'https://www.sipandguzzlenyc.com/', instagram: 'https://www.instagram.com/sipandguzzlenyc/', buildout: 'https://vinepair.com/the-buildout/sip-and-guzzle/' },
+      { rank: 3, top: true, name: 'Bar Snack', address: '92 2nd Ave, East Village', note: 'Tiny wood-lined spot punching above its weight. Walk-in friendly weekday afternoons. Open daily from 2pm.', lat: 40.7269233, lng: -73.9885382, img: 'Bar Snack-hero_NA50BB26-LIP.jpg', website: 'https://www.barsnacknyc.com/', instagram: 'https://www.instagram.com/barsnack.nyc/', buildout: null },
+      { rank: 4, top: true, name: 'Schmuck', address: '97 1st Ave, East Village', note: 'Cozy living-room vibe with serious martini focus. Closed Mondays. Open Tue–Sun 4pm–1am.', lat: 40.726376, lng: -73.9864745, img: 'Schmuck_NA50BB26-LIP.jpg', website: 'https://www.schmucknyc.com/', instagram: 'https://www.instagram.com/schmuck.ny/', buildout: 'https://vinepair.com/the-buildout/schmuck/' },
+      { rank: 9, top: true, name: 'Superbueno', address: '13 1st Ave, East Village', note: 'Mexican-influenced cocktails — the roasted corn sour and mole negroni are signatures. Open daily.', lat: 40.7234473, lng: -73.9885737, img: 'Superbueno-hero_NA50BB26-LIP.jpg', website: 'https://www.superbuenonyc.com/', instagram: 'https://www.instagram.com/superbuenonyc/', buildout: 'https://vinepair.com/the-buildout/superbueno/' },
+      { rank: 15, name: 'Clemente Bar', address: '11 Madison Ave, NoMad', note: "Daniel Humm's bar above Eleven Madison Park. Vegetarian bar snacks, cinematic interior. Open daily 5pm–1am. Reservations recommended.", lat: 40.7416326, lng: -73.9870711, img: 'Clemente Bar-hero_NA50BB26-LIP.jpg', website: 'https://www.clementebar.com/', instagram: 'https://www.instagram.com/theclementebar/', buildout: 'https://vinepair.com/the-buildout/clemente-bar/' },
+      { rank: 23, name: "Martiny's", address: '121 E 17th St, Union Square', note: 'Reservation-only Japanese-style martini bar in a townhouse. Try the Caprese or Tea Ceremony. Open daily 6pm–1am.', lat: 40.7361286, lng: -73.9876467, img: 'Martinys-hero_NA50BB26-LIP.jpg', website: 'https://www.martinys.com/', instagram: 'https://www.instagram.com/martinys_nyc/', buildout: 'https://vinepair.com/the-buildout/martinys/' },
+      { rank: 31, name: "Angel's Share", address: '45 Grove St, West Village', note: 'The legendary speakeasy. Walk-ins only — expect a wait. Closed Sun/Mon. Open Tue–Sat 5pm–midnight.', lat: 40.7329799, lng: -74.0042594, img: 'Angels Share-hero_NA50BB26-LIP.jpg', website: 'https://www.angelssharenyc.com/', instagram: 'https://www.instagram.com/angelssharenyc/', buildout: null },
+      { rank: 33, name: 'Overstory', address: '70 Pine St, 64th floor, FiDi', note: 'Sweeping skyline views. Arrive 30–60 min before sunset to skip the worst of the queue. One-cocktail-per-person minimum.', lat: 40.7065047, lng: -74.0077715, img: 'Overstory-hero_NA50BB26-LIP.jpg', website: 'https://www.overstory-nyc.com/', instagram: 'https://www.instagram.com/overstory/', buildout: 'https://vinepair.com/the-buildout/overstory/' },
+      { rank: 35, name: 'Double Chicken Please', address: '115 Allen St, Lower East Side', note: 'Two rooms: front (Free Range) is walk-in cocktails & chicken, back (Coop) is reservation-only tasting experience. Closed Mondays.', lat: 40.719592, lng: -73.9904612, img: 'DCP-2_NA50BB26-LIP.JPG', website: 'https://doublechickenplease.com/', instagram: 'https://www.instagram.com/doublechickenpleasenyc/', buildout: 'https://vinepair.com/the-buildout/double-chicken-please/' },
+      { rank: 36, name: 'Bar Madonna', address: '367 Metropolitan Ave, Williamsburg (Brooklyn)', note: 'The smashed meatball parm and ossobuco croquettes are as much a draw as the cocktails. Open daily.', lat: 40.7141979, lng: -73.9556832, img: 'Bar Madonna-hero_NA50BB26-LIP.jpg', website: 'https://barmadonna.com/', instagram: 'https://www.instagram.com/barmadonnabk/', buildout: null },
+      { rank: 37, name: 'Attaboy', address: '134 Eldridge St, Lower East Side', note: 'No menu — tell the bartender what you like. Open daily until 3am. Walk-in only, expect a wait.', lat: 40.718882, lng: -73.99138, img: 'Attaboy-hero_NA50BB26-LIP.jpg', website: 'https://attaboy.us/', instagram: 'https://www.instagram.com/attaboy134/', buildout: 'https://vinepair.com/the-buildout/attaboy/' },
+      { rank: 40, name: 'Maison Premiere', address: '298 Bedford Ave, Williamsburg (Brooklyn)', note: 'Oyster + absinthe bar with an enchanting backyard. Great for a long, lingering visit. Open daily from noon (10am weekends).', lat: 40.7142687, lng: -73.9616646, img: 'Maison Premiere-hero_NA50BB26-LIP.jpg', website: 'https://maisonpremiere.com/', instagram: 'https://www.instagram.com/maisonpremiere/', buildout: 'https://vinepair.com/the-buildout/maison-premiere/' },
+      { rank: 45, name: 'Employees Only', address: '510 Hudson St, West Village', note: 'Late-night classic — open until 4am every night. Tableside steak tartare and a midnight burlesque show.', lat: 40.7334346, lng: -74.0061109, img: 'Employees Only-hero_NA50BB26-LIP.jpg', website: 'https://www.employeesonlynyc.com/', instagram: 'https://www.instagram.com/employeesonlyny/', buildout: null },
+      { rank: 52, name: 'Katana Kitten', address: '531 Hudson St, West Village', note: 'Japanese-American highballs and bar snacks. Two doors down from Employees Only — easy to pair.', lat: 40.7342547, lng: -74.0064852, img: 'KatanaKitten-Interior-JohnShyloski-2_NA50BB26-51-100-LIP.jpg', website: 'https://www.katanakitten.com/', instagram: 'https://www.instagram.com/katanakitten_nyc/', buildout: 'https://vinepair.com/the-buildout/katana-kitten/' },
+      { rank: 58, name: 'Dante', address: '551 Hudson St, West Village', note: 'All-day spot with legendary negronis. Open from 10am — great for an aperitivo or a meal.', lat: 40.7352026, lng: -74.0062505, img: 'Dante Negroni_NA50BB26-51-100-LIP.jpg', website: 'https://www.dante-nyc.com/', instagram: 'https://www.instagram.com/dantenewyorkcity/', buildout: null },
+      { rank: 66, name: 'Seed Library', address: '51 E 30th St, NoMad (Hotel Park Ave)', note: "Mr Lyan's NYC outpost — '70s conversation-pit vibe, lacto/koji-fermented cocktails. Closed Mondays.", lat: 40.7447717, lng: -73.9834136, img: 'Seed library nyc_NA50BB26-51-100-LIP.jpg', website: 'https://www.seedlibrarynyc.com/', instagram: 'https://www.instagram.com/seedlibrarynyc/', buildout: null },
+      { rank: 71, name: 'The Portrait Bar', address: '1 W 28th St, NoMad (The Fifth Avenue Hotel)', note: 'Neighborhood-themed cocktails (Mapo District, Marrakesh, etc.). Reservations a must. Open daily.', lat: 40.7450774, lng: -73.9877319, img: 'The Portrait Bar_NA50BB26-51-100-LIP.jpeg', website: 'https://www.theportraitbar.com/', instagram: 'https://www.instagram.com/theportraitbarnyc/', buildout: null },
+      { rank: 77, name: "Shinji's", address: '37 W 20th St, Flatiron', note: 'Theatrical speakeasy with liquid-nitrogen flourishes. 90-minute reservation cap. Closed Mondays.', lat: 40.7407505, lng: -73.9931495, img: 'Shinjis-credit Joanna Lin_NA50BB26-51-100-LIP.jpg', website: 'https://shinjisbar.com/', instagram: 'https://www.instagram.com/shinjisbar/', buildout: 'https://vinepair.com/the-buildout/shinjis/' },
     ];
+
+    function linksHtml(bar) {
+      const links = [];
+      if (bar.website) links.push(`<a class="bar-link" href="${bar.website}" target="_blank" rel="noopener">Website</a>`);
+      if (bar.instagram) links.push(`<a class="bar-link" href="${bar.instagram}" target="_blank" rel="noopener">Instagram</a>`);
+      if (bar.buildout) links.push(`<a class="bar-link" href="${bar.buildout}" target="_blank" rel="noopener">Buildout</a>`);
+      return links.length ? `<div class="bar-links">${links.join('')}</div>` : '';
+    }
+
+    function gmapsUrl(bar) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${bar.name}, ${bar.address}`)}`;
+    }
+
+    const isMobile = () => window.matchMedia('(max-width: 899px)').matches;
+
+    function popupContent(bar) {
+      if (isMobile()) {
+        return `<div class="popup-mini">#${bar.rank} ${escapeHTML(bar.name)}</div>`;
+      }
+      const popupImg = bar.img ? `<img class="popup-img" src="${imgUrl(bar.img)}" alt="${escapeHTML(bar.name)}" loading="lazy">` : '';
+      return `${popupImg}<div class="popup-body"><strong>#${bar.rank} ${escapeHTML(bar.name)}</strong>${escapeHTML(bar.address)}<br><br>${escapeHTML(bar.note)}${linksHtml(bar)}</div>`;
+    }
 
     function imgUrl(filename) {
       return IMG_BASE + encodeURIComponent(filename);
@@ -416,14 +508,19 @@
         el.className = `marker-pin${bar.top ? ' top' : ''}`;
         el.innerHTML = `<span>${bar.rank}</span>`;
 
-        const popupImg = bar.img ? `<img class="popup-img" src="${imgUrl(bar.img)}" alt="${escapeHTML(bar.name)}" loading="lazy">` : '';
         const popup = new mapboxgl.Popup({ offset: bar.top ? 24 : 20, closeButton: false })
-          .setHTML(`${popupImg}<div class="popup-body"><strong>#${bar.rank} ${escapeHTML(bar.name)}</strong>${escapeHTML(bar.address)}<br><br>${escapeHTML(bar.note)}</div>`);
+          .setHTML(popupContent(bar));
 
         const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat([bar.lng, bar.lat])
           .setPopup(popup)
           .addTo(map);
+
+        popup.on('open', () => {
+          popup.setHTML(popupContent(bar));
+          el.classList.add('active');
+        });
+        popup.on('close', () => el.classList.remove('active'));
 
         el.addEventListener('click', () => selectBar(bar.rank));
 
@@ -440,12 +537,14 @@
               <span class="explorer-name">${escapeHTML(bar.name)}</span>
               <span class="explorer-distance" hidden></span>
             </div>
-            <p class="explorer-address">${escapeHTML(bar.address)}</p>
+            <p class="explorer-address"><a class="address-link" href="${gmapsUrl(bar)}" target="_blank" rel="noopener">${escapeHTML(bar.address)}</a></p>
             <p class="explorer-note">${escapeHTML(bar.note)}</p>
+            ${linksHtml(bar)}
           </div>
           ${bar.img ? `<img class="explorer-thumb" src="${imgUrl(bar.img)}" alt="${escapeHTML(bar.name)}" loading="lazy">` : ''}
         `;
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('a')) return;
           selectBar(bar.rank);
           if (activePopup && activePopup !== popup) activePopup.remove();
           map.flyTo({ center: [bar.lng, bar.lat], zoom: 16, speed: 1.4 });
@@ -588,7 +687,12 @@
       const initialPin = readPinFromUrl();
       if (initialPin) setUserPin(initialPin.lat, initialPin.lng, { push: false });
 
-      window.addEventListener('resize', () => map.resize());
+      window.addEventListener('resize', () => {
+        map.resize();
+        Object.entries(popups).forEach(([rank, p]) => {
+          if (p.isOpen()) p.setHTML(popupContent(BARS.find((b) => b.rank === Number(rank))));
+        });
+      });
 
       const container = document.getElementById('explorer-map');
       const ro = new ResizeObserver(() => map.resize());
