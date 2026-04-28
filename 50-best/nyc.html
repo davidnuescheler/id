@@ -218,6 +218,74 @@
       font-size: 11px;
       font-family: var(--fixed-font-family);
     }
+
+    .user-pin {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #1e88ff;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 2px rgba(30,136,255,0.4);
+      cursor: grab;
+    }
+
+    .user-pin:active {
+      cursor: grabbing;
+    }
+
+    .pin-hint {
+      font-size: 12px;
+      color: #888;
+      margin: 6px 0 0;
+      line-height: 1.35;
+    }
+
+    .pin-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 20px;
+      background: #eef6ff;
+      border-bottom: 1px solid var(--dark-color);
+      font-size: var(--body-font-size-xs);
+      position: sticky;
+      top: var(--list-header-height, 0);
+      z-index: 1;
+    }
+
+    .pin-status-text {
+      color: #1865c2;
+      font-weight: 500;
+    }
+
+    .pin-clear {
+      background: none;
+      color: #1865c2;
+      border: 1px solid #1865c2;
+      padding: 4px 12px;
+      font-size: 13px;
+      border-radius: 16px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .pin-clear:hover,
+    .pin-clear:focus {
+      background: #1865c2;
+      color: white;
+    }
+
+    .explorer-distance {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1865c2;
+      background: #eef6ff;
+      padding: 2px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -230,6 +298,11 @@
           <div class="explorer-list-header">
             <h1>NYC — 50 Best Bars 2026</h1>
             <p>18 New York bars from North America's 50 Best Bars 2026.</p>
+            <p class="pin-hint">Tap and hold the map to drop a pin — bars will sort by distance.</p>
+          </div>
+          <div class="pin-status" id="pin-status" hidden>
+            <span class="pin-status-text">Sorted by distance from pin</span>
+            <button type="button" class="pin-clear" id="pin-clear">Clear</button>
           </div>
         </aside>
         <div id="explorer-map"></div>
@@ -271,6 +344,40 @@
 
     function escapeHTML(s) {
       return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function haversineMiles(lat1, lng1, lat2, lng2) {
+      const R = 3958.8;
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) ** 2
+        + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.asin(Math.sqrt(a));
+    }
+
+    function formatMiles(d) {
+      if (d < 0.1) return `${Math.round(d * 5280)} ft`;
+      if (d < 1) return `${d.toFixed(2)} mi`;
+      return `${d.toFixed(1)} mi`;
+    }
+
+    function readPinFromUrl() {
+      const v = new URLSearchParams(window.location.search).get('pin');
+      if (!v) return null;
+      const [lat, lng] = v.split(',').map(Number);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      return { lat, lng };
+    }
+
+    function writePinUrl(lat, lng, push) {
+      const sp = new URLSearchParams(window.location.search);
+      if (lat == null) sp.delete('pin');
+      else sp.set('pin', `${lat.toFixed(5)},${lng.toFixed(5)}`);
+      const qs = sp.toString();
+      const url = `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`;
+      if (push) window.history.pushState({}, '', url);
+      else window.history.replaceState({}, '', url);
     }
 
     async function initExplorer() {
@@ -331,6 +438,7 @@
             <div class="explorer-bar-head">
               <span class="explorer-rank${bar.top ? ' top' : ''}">#${bar.rank}</span>
               <span class="explorer-name">${escapeHTML(bar.name)}</span>
+              <span class="explorer-distance" hidden></span>
             </div>
             <p class="explorer-address">${escapeHTML(bar.address)}</p>
             <p class="explorer-note">${escapeHTML(bar.note)}</p>
@@ -347,6 +455,138 @@
         list.appendChild(card);
         cards[bar.rank] = card;
       });
+
+      let userPin = null;
+      let userMarker = null;
+      const statusEl = document.getElementById('pin-status');
+
+      function sortAndRender() {
+        const order = userPin
+          ? [...BARS].sort((a, b) => haversineMiles(userPin.lat, userPin.lng, a.lat, a.lng)
+              - haversineMiles(userPin.lat, userPin.lng, b.lat, b.lng))
+          : BARS;
+
+        BARS.forEach((bar) => {
+          const distEl = cards[bar.rank].querySelector('.explorer-distance');
+          if (userPin) {
+            const d = haversineMiles(userPin.lat, userPin.lng, bar.lat, bar.lng);
+            distEl.textContent = formatMiles(d);
+            distEl.hidden = false;
+          } else {
+            distEl.hidden = true;
+          }
+        });
+
+        order.forEach((bar) => list.appendChild(cards[bar.rank]));
+        statusEl.hidden = !userPin;
+      }
+
+      function setUserPin(lat, lng, { push = true } = {}) {
+        userPin = { lat, lng };
+        if (!userMarker) {
+          const el = document.createElement('div');
+          el.className = 'user-pin';
+          userMarker = new mapboxgl.Marker({ element: el, draggable: true })
+            .setLngLat([lng, lat])
+            .addTo(map);
+          userMarker.on('dragend', () => {
+            const ll = userMarker.getLngLat();
+            userPin = { lat: ll.lat, lng: ll.lng };
+            writePinUrl(ll.lat, ll.lng, false);
+            sortAndRender();
+          });
+        } else {
+          userMarker.setLngLat([lng, lat]);
+        }
+        writePinUrl(lat, lng, push);
+        sortAndRender();
+      }
+
+      function clearUserPin({ push = true } = {}) {
+        userPin = null;
+        if (userMarker) {
+          userMarker.remove();
+          userMarker = null;
+        }
+        writePinUrl(null, null, push);
+        sortAndRender();
+      }
+
+      document.getElementById('pin-clear').addEventListener('click', () => clearUserPin());
+
+      map.on('contextmenu', (e) => {
+        setUserPin(e.lngLat.lat, e.lngLat.lng);
+      });
+
+      const canvas = map.getCanvasContainer();
+      let touchTimer = null;
+      let touchStart = null;
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const t = e.touches[0];
+        touchStart = { x: t.clientX, y: t.clientY };
+        if (touchTimer) clearTimeout(touchTimer);
+        touchTimer = setTimeout(() => {
+          if (!touchStart) return;
+          const rect = canvas.getBoundingClientRect();
+          const ll = map.unproject([touchStart.x - rect.left, touchStart.y - rect.top]);
+          setUserPin(ll.lat, ll.lng);
+          touchTimer = null;
+        }, 600);
+      }, { passive: true });
+      canvas.addEventListener('touchmove', (e) => {
+        if (!touchStart || !touchTimer) return;
+        const t = e.touches[0];
+        if (Math.hypot(t.clientX - touchStart.x, t.clientY - touchStart.y) > 8) {
+          clearTimeout(touchTimer);
+          touchTimer = null;
+        }
+      }, { passive: true });
+      const cancelTouch = () => {
+        if (touchTimer) clearTimeout(touchTimer);
+        touchTimer = null;
+        touchStart = null;
+      };
+      canvas.addEventListener('touchend', cancelTouch, { passive: true });
+      canvas.addEventListener('touchcancel', cancelTouch, { passive: true });
+
+      let mouseTimer = null;
+      let mouseStart = null;
+      canvas.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        mouseStart = { x: e.clientX, y: e.clientY };
+        if (mouseTimer) clearTimeout(mouseTimer);
+        mouseTimer = setTimeout(() => {
+          if (!mouseStart) return;
+          const rect = canvas.getBoundingClientRect();
+          const ll = map.unproject([mouseStart.x - rect.left, mouseStart.y - rect.top]);
+          setUserPin(ll.lat, ll.lng);
+          mouseTimer = null;
+        }, 600);
+      });
+      canvas.addEventListener('mousemove', (e) => {
+        if (!mouseStart || !mouseTimer) return;
+        if (Math.hypot(e.clientX - mouseStart.x, e.clientY - mouseStart.y) > 8) {
+          clearTimeout(mouseTimer);
+          mouseTimer = null;
+        }
+      });
+      const cancelMouse = () => {
+        if (mouseTimer) clearTimeout(mouseTimer);
+        mouseTimer = null;
+        mouseStart = null;
+      };
+      canvas.addEventListener('mouseup', cancelMouse);
+      canvas.addEventListener('mouseleave', cancelMouse);
+
+      window.addEventListener('popstate', () => {
+        const p = readPinFromUrl();
+        if (p) setUserPin(p.lat, p.lng, { push: false });
+        else clearUserPin({ push: false });
+      });
+
+      const initialPin = readPinFromUrl();
+      if (initialPin) setUserPin(initialPin.lat, initialPin.lng, { push: false });
 
       window.addEventListener('resize', () => map.resize());
 
