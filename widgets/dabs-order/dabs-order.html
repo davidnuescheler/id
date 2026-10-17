@@ -1,0 +1,59 @@
+<form class="dabs-order-form">
+    <section class="dabs-order-section">
+        <label class="dabs-order-field">
+            <span>Order name</span>
+            <input type="text" name="nickname" maxlength="100" autocomplete="off" placeholder="e.g. Wine for October" required>
+        </label>
+
+        <div class="dabs-order-cart">
+            <ul class="dabs-order-items" aria-label="Items in this order"></ul>
+            <div class="dabs-order-add">
+                <div class="dabs-order-add-field">
+                    <span class="dabs-order-add-icon" aria-hidden="true">+</span>
+                    <input class="dabs-order-search" type="search" autocomplete="off" spellcheck="false"
+                        placeholder="Loading catalog…" aria-label="Add a product by name or code" disabled
+                        role="combobox" aria-expanded="false" aria-controls="dabs-order-matches" aria-autocomplete="list">
+                </div>
+                <ul class="dabs-order-matches" id="dabs-order-matches" role="listbox" aria-label="Matching products"></ul>
+                <p class="dabs-order-add-status" aria-live="polite"></p>
+            </div>
+            <div class="dabs-order-total">
+                <span class="dabs-order-total-cases"></span>
+                <span class="dabs-order-total-label">Estimated total <strong class="dabs-order-total-price">$0.00</strong></span>
+            </div>
+        </div>
+        <p class="dabs-order-note">Prices are per case from the DABS catalog. DABS confirms the final price.</p>
+    </section>
+
+    <div class="dabs-order-actions">
+        <button class="dabs-order-submit" type="submit">Create order</button>
+        <p>Creates the order on DABS without submitting it to the vendor.</p>
+    </div>
+</form>
+
+<dialog class="dabs-order-dialog" aria-labelledby="dabs-order-signin-title">
+    <form class="dabs-order-signin" method="dialog">
+        <div class="dabs-order-dialog-head">
+            <h3 id="dabs-order-signin-title">Sign in to DABS</h3>
+            <button class="dabs-order-dialog-close" type="button" value="cancel" aria-label="Close">×</button>
+        </div>
+        <p class="dabs-order-dialog-summary"></p>
+        <label class="dabs-order-field">
+            <span>Email</span>
+            <input type="email" name="username" autocomplete="username" required>
+        </label>
+        <label class="dabs-order-field">
+            <span>Password</span>
+            <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <p class="dabs-order-note">Your password is only used to sign in to DABS for this order. It is never saved.</p>
+        <ul class="dabs-order-dialog-errors" aria-live="polite"></ul>
+        <div class="dabs-order-dialog-actions">
+            <button class="dabs-order-cancel" type="button">Cancel</button>
+            <button class="dabs-order-submit dabs-order-signin-submit" type="submit">Sign in and create order</button>
+        </div>
+        <p class="dabs-order-dialog-progress" aria-live="polite" hidden>Signing in and building your order on DABS. This usually takes under a minute.</p>
+    </form>
+</dialog>
+
+<section class="dabs-order-result" aria-live="polite" hidden></section>

@@ -1,0 +1,18 @@
+{
+  "name": "dabs-order-worker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Cloudflare Worker that logs into Utah DABS special orders and creates an order.",
+  "scripts": {
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^1.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
