@@ -7,6 +7,57 @@
 }
 
 
+/* Mode switch */
+.iba-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.iba-modes .iba-mode {
+  margin: 0;
+  padding: 8px 18px;
+  border: 2px solid var(--link-color, #06c);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--link-color, #06c);
+  font-size: 0.95rem;
+}
+
+.iba-modes .iba-mode[aria-pressed="true"] {
+  background: var(--link-color, #06c);
+  color: var(--background-color, #fff);
+}
+
+.iba-count-missing,
+.iba-empty {
+  display: none;
+}
+
+.iba[data-mode="missing"] .iba-count-all {
+  display: none;
+}
+
+.iba[data-mode="missing"] .iba-count-missing {
+  display: block;
+}
+
+.iba[data-mode="missing"] .iba-cocktail-item[data-has-recipe="true"],
+.iba[data-mode="missing"] .iba-collection[data-missing="0"],
+.iba[data-mode="missing"] .iba-toc-item[data-missing="0"] {
+  display: none;
+}
+
+.iba[data-mode="missing"]:not(:has(.iba-toc-item:not([data-missing="0"]))) .iba-toc {
+  display: none;
+}
+
+.iba[data-mode="missing"]:not(:has(.iba-cocktail-item[data-has-recipe="false"])) .iba-empty {
+  display: block;
+  margin: 0 0 24px;
+}
+
 /* Table of Contents */
 .iba-toc {
   margin-bottom: 30px;

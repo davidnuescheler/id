@@ -52,14 +52,22 @@ function createTableOfContents(collections, drinks) {
     tocItemTitle.className = 'iba-toc-item-title';
     tocItemTitle.textContent = `${collection.Year} ${collection.Category}`;
 
+    const missingInCollection = cocktails.length - availableInCollection;
+    tocItem.setAttribute('data-missing', missingInCollection);
+
     const tocItemCount = document.createElement('div');
-    tocItemCount.className = 'iba-toc-item-count';
+    tocItemCount.className = 'iba-toc-item-count iba-count-all';
     tocItemCount.textContent = `${availableInCollection}/${cocktails.length} cocktails`;
+
+    const tocItemMissing = document.createElement('div');
+    tocItemMissing.className = 'iba-toc-item-count iba-count-missing';
+    tocItemMissing.textContent = `${missingInCollection} missing`;
 
     const progressCircle = createProgressCircle(coveragePercentage);
 
     tocItem.appendChild(tocItemTitle);
     tocItem.appendChild(tocItemCount);
+    tocItem.appendChild(tocItemMissing);
     tocItem.appendChild(progressCircle);
     tocList.appendChild(tocItem);
 
@@ -67,7 +75,7 @@ function createTableOfContents(collections, drinks) {
     tocItem.addEventListener('click', () => {
       const targetSection = document.getElementById(collectionId);
       if (targetSection) {
-        window.history.pushState(null, '', `#${collectionId}`);
+        window.history.pushState(null, '', `${window.location.pathname}${window.location.search}#${collectionId}`);
         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
@@ -89,6 +97,10 @@ function createCollectionSection(collection, drinks) {
 
   const headerTitle = document.createElement('h2');
   const cocktails = collection.Cocktails.split(',').map((cocktail) => cocktail.trim());
+  const missingCount = cocktails.filter(
+    (cocktail) => !drinks.find((page) => page.title === cocktail),
+  ).length;
+  section.setAttribute('data-missing', missingCount);
 
   const titleContainer = document.createElement('div');
   titleContainer.className = 'iba-collection-title';
@@ -119,6 +131,7 @@ function createCollectionSection(collection, drinks) {
     listItem.setAttribute('data-cocktail-name', cocktail.toLowerCase());
 
     const drink = drinks.find((page) => page.title === cocktail);
+    listItem.setAttribute('data-has-recipe', drink ? 'true' : 'false');
     if (drink) {
       const link = document.createElement('a');
       link.href = drink.path;
@@ -214,6 +227,45 @@ function createStats(collections, totalCocktails, availableCocktails) {
   return statsContainer;
 }
 
+function createModeSwitch(initialMode) {
+  const modes = document.createElement('div');
+  modes.className = 'iba-modes';
+  modes.setAttribute('role', 'group');
+  modes.setAttribute('aria-label', 'Cocktail list');
+
+  [
+    { mode: 'all', label: 'All cocktails' },
+    { mode: 'missing', label: 'Missing recipes' },
+  ].forEach(({ mode, label }) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'iba-mode';
+    button.dataset.mode = mode;
+    button.textContent = label;
+    button.setAttribute('aria-pressed', mode === initialMode ? 'true' : 'false');
+    modes.appendChild(button);
+  });
+
+  return modes;
+}
+
+function readMode() {
+  const mode = new URLSearchParams(window.location.search).get('mode');
+  return mode === 'missing' ? 'missing' : 'all';
+}
+
+function applyMode(widget, mode) {
+  widget.dataset.mode = mode;
+  widget.querySelectorAll('.iba-mode').forEach((button) => {
+    button.setAttribute('aria-pressed', button.dataset.mode === mode ? 'true' : 'false');
+  });
+
+  const url = new URL(window.location.href);
+  if (mode === 'missing') url.searchParams.set('mode', 'missing');
+  else url.searchParams.delete('mode');
+  window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+}
+
 export default async function decorate(widget) {
   // Add CSS class to widget
   widget.className = 'iba-widget';
@@ -255,8 +307,23 @@ export default async function decorate(widget) {
   // Create statistics
   const stats = createStats(iba, totalCocktails, availableCocktails);
 
+  const initialMode = readMode();
+  const modeSwitch = createModeSwitch(initialMode);
+  modeSwitch.addEventListener('click', (event) => {
+    const button = event.target.closest('.iba-mode');
+    if (!button) return;
+    applyMode(widget, button.dataset.mode);
+  });
+
+  const empty = document.createElement('p');
+  empty.className = 'iba-empty';
+  empty.textContent = 'Every IBA cocktail in these collections has a recipe.';
+
   // Assemble widget
+  widget.dataset.mode = initialMode;
+  widget.appendChild(modeSwitch);
   widget.appendChild(toc);
+  widget.appendChild(empty);
   widget.appendChild(collectionsContainer);
   widget.appendChild(stats);
 
