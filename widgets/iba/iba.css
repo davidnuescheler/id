@@ -25,7 +25,9 @@
   font-size: 0.95rem;
 }
 
-.iba-modes .iba-mode[aria-pressed="true"] {
+.iba-modes .iba-mode[aria-pressed="true"],
+.iba-modes .iba-mode:hover,
+.iba-modes .iba-mode:focus {
   background: var(--link-color, #06c);
   color: var(--background-color, #fff);
 }

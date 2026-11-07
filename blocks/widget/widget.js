@@ -8,8 +8,18 @@ export default async function decorate(widget) {
   const widgetEl = widget.querySelector('a');
   const widgetUrl = widgetEl.href;
   const parsedWidgetUrl = new URL(widgetUrl);
-  const pathSplit = widgetUrl.split('/');
+  // derive the name from the path only, query params may contain slashes
+  const pathSplit = parsedWidgetUrl.pathname.split('/');
   const widgetName = pathSplit[pathSplit.length - 2];
+
+  // expose the widget url and its query params before the widget decorates,
+  // so widgets can read their configuration from widget.dataset
+  widget.dataset.widgetUrl = widgetUrl;
+  const params = new URLSearchParams(parsedWidgetUrl.searchParams);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [key, value] of params.entries()) {
+    widget.dataset[key] = value;
+  }
 
   try {
     const resp = await fetch(`${window.hlx.codeBasePath}/widgets/${widgetName}/${widgetName}.html`);
@@ -38,10 +48,4 @@ export default async function decorate(widget) {
     console.log(`failed to load block ${widgetName}`, error);
   }
   widget.className = `widget ${widgetName}`;
-  widget.dataset.widgetUrl = widgetUrl;
-  const params = new URLSearchParams(parsedWidgetUrl.searchParams);
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [key, value] of params.entries()) {
-    widget.dataset[key] = value;
-  }
 }
