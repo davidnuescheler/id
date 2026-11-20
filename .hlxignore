@@ -1,4 +1,11 @@
-.*
+.hlx
+.eslint*
+.gitignore
+.renovate*
+.style*
+.claude
+.github
+.hlx
 *.md
 karma.config.js
 LICENSE
