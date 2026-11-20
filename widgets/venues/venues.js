@@ -32,6 +32,28 @@ function pick(row, ...names) {
   return found ? row[found] : '';
 }
 
+/**
+ * slug used for image file names: "Aker Restaurant & Lounge" -> aker-restaurant-and-lounge,
+ * "Laurel (Grand America)" -> laurel, "Manoli's" -> manolis
+ */
+function slugify(name) {
+  return String(name)
+    .split('(')[0]
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/['\u2019]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** edge delivery optimized image url for a venue, from the images folder */
+function venueImageUrl(imageBase, name) {
+  if (!imageBase) return '';
+  const slug = slugify(name);
+  return slug ? `${imageBase}${slug}.jpg?width=750&format=webply&optimize=medium` : '';
+}
+
 function isTruthy(value) {
   return ['true', 'yes', 'y', '1', 'x'].includes(String(value).trim().toLowerCase());
 }
@@ -71,21 +93,36 @@ function getSetting(widget, name) {
 
 /* ---------- data ---------- */
 
-function normalize(rows) {
+/** absolute folder url (with trailing slash) for venue images */
+function imageFolder(src, images) {
+  try {
+    const srcPath = new URL(src, window.location.href).pathname;
+    const name = srcPath.split('/').pop().replace(/\.json$/i, '');
+    const folder = images || `/assets/venues/${name}/`;
+    const url = new URL(folder.endsWith('/') ? folder : `${folder}/`, window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function normalize(rows, imageBase) {
   return rows
     .map((row, index) => {
+      const name = String(pick(row, 'Bar', 'Name', 'Venue', 'Title'));
       const lat = parseFloat(pick(row, 'Latitude', 'Lat'));
       const lng = parseFloat(pick(row, 'Longitude', 'Lng', 'Lon', 'Long'));
       const rank = pick(row, 'Rank', '#');
       return {
         id: String(index),
         rank: rank === '' ? String(index + 1) : String(rank),
-        name: String(pick(row, 'Bar', 'Name', 'Venue', 'Title')),
+        name,
         address: String(pick(row, 'Address')),
         note: String(pick(row, 'Description', 'Note', 'Notes')),
         website: safeUrl(pick(row, 'Website', 'Url', 'Link')),
         instagram: safeUrl(pick(row, 'Instagram')),
-        img: safeUrl(pick(row, 'Image', 'Img', 'Photo')),
+        // an explicit Image column wins, otherwise <images>/<slug>.jpg
+        img: safeUrl(pick(row, 'Image', 'Img', 'Photo')) || venueImageUrl(imageBase, name),
         top: isTruthy(pick(row, 'Top', 'Featured')),
         lat,
         lng,
@@ -94,7 +131,7 @@ function normalize(rows) {
     .filter((v) => v.name && Number.isFinite(v.lat) && Number.isFinite(v.lng));
 }
 
-async function loadVenues(src) {
+async function loadVenues(src, imageBase) {
   const url = new URL(src, window.location.href);
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -108,7 +145,7 @@ async function loadVenues(src) {
   }
   const rows = Array.isArray(json) ? json : json.data;
   if (!Array.isArray(rows)) throw new Error('no data array in json');
-  return normalize(rows);
+  return normalize(rows, imageBase);
 }
 
 /* ---------- rendering ---------- */
@@ -211,6 +248,15 @@ function onLongPress(target, handler) {
 /* ---------- explorer ---------- */
 
 function initExplorer(widget, venues, token) {
+  // venues without a photo yet: drop the broken image instead of showing an icon
+  widget.addEventListener('error', (e) => {
+    const img = e.target;
+    if (!(img instanceof HTMLImageElement)) return;
+    if (!img.matches('.venues-thumb, .venues-popup-img')) return;
+    img.closest('.venues-item')?.classList.remove('has-thumb');
+    img.remove();
+  }, true);
+
   const { mapboxgl } = window;
   mapboxgl.accessToken = token;
 
@@ -379,6 +425,8 @@ function showError(widget, message) {
  *   src      – url of the json (required), e.g. /bars/slc.json
  *   title    – heading above the list (optional)
  *   subtitle – line under the heading (optional, defaults to the venue count)
+ *   images   – folder with <slug>.jpg venue photos (optional), defaults to
+ *              /assets/venues/<json name>/, e.g. /assets/venues/slc/ for /bars/slc.json
  * @param {Element} widget
  */
 export default async function decorate(widget) {
@@ -396,7 +444,7 @@ export default async function decorate(widget) {
 
   loadCSS(MAPBOX_CSS);
   const [venuesResult, placeholders] = await Promise.all([
-    loadVenues(src).catch((e) => e),
+    loadVenues(src, imageFolder(src, getSetting(widget, 'images'))).catch((e) => e),
     fetchPlaceholders(),
     loadScript(MAPBOX_JS),
   ]);
