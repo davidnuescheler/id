@@ -18,10 +18,7 @@
     {
       "type": "mcp",
       "url": "https://m.adobe.io/personal-agent-gateway/h/independentdrinker.com/poppy/mcp",
-      "description": "Independent Drinker website search for personal agents, as a read-only 
-      MCP server: call search_site with what the user wants to do or know on independentdrinker.com 
-      and it returns the matching pages' titles, URLs and short descriptions from the site's own search. 
-      It can't sign in, buy, book or submit forms."
+      "description": "Independent Drinker website search for personal agents, as a read-only MCP server: call search_site with what the user wants to do or know on independentdrinker.com and it returns the matching pages' titles, URLs and short descriptions from the site's own search. It can't sign in, buy, book or submit forms."
     }
   ]
 }
