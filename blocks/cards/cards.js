@@ -20,13 +20,25 @@ async function createDrinksCards() {
     a1.append(picture);
     cell1.append(a1);
     const ibaStatus = await checkIBA(title);
-    if (ibaStatus.current) {
+    if (ibaStatus.collections.length > 0) {
+      const badge = document.createElement('div');
+      badge.className = ibaStatus.current ? 'iba-badge' : 'iba-badge iba-badge-former';
+
       const img = document.createElement('img');
       img.src = '/icons/logo-iba.svg';
       img.className = 'icon';
-      img.alt = 'IBA logo';
+      img.alt = ibaStatus.current ? 'IBA logo' : `Former IBA cocktail (${ibaStatus.latestYear})`;
       img.role = 'img';
-      cell1.append(img);
+      badge.append(img);
+
+      if (!ibaStatus.current && ibaStatus.latestYear) {
+        const year = document.createElement('span');
+        year.className = 'iba-badge-year';
+        year.textContent = String(ibaStatus.latestYear);
+        badge.append(year);
+      }
+
+      cell1.append(badge);
     }
     const cell2 = document.createElement('div');
     const a2 = document.createElement('a');

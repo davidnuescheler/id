@@ -3,6 +3,7 @@ import {
   decorateIcons,
   fetchPlaceholders,
 } from '../../scripts/aem.js';
+import { checkIBA } from '../../scripts/scripts.js';
 
 const searchParams = new URLSearchParams(window.location.search);
 
@@ -91,15 +92,43 @@ export async function fetchData(source) {
     .filter((item) => !isDefaultMetaImage(String(item.image)));
 }
 
-function renderResult(result, searchTerms, titleTag) {
+async function createIbaBadge(title) {
+  const ibaStatus = await checkIBA(title);
+  if (!ibaStatus.collections.length) return null;
+
+  const badge = document.createElement('div');
+  badge.className = ibaStatus.current ? 'iba-badge' : 'iba-badge iba-badge-former';
+
+  const img = document.createElement('img');
+  img.src = '/icons/logo-iba.svg';
+  img.className = 'icon';
+  img.alt = ibaStatus.current ? 'IBA logo' : `Former IBA cocktail (${ibaStatus.latestYear})`;
+  img.role = 'img';
+  badge.append(img);
+
+  if (!ibaStatus.current && ibaStatus.latestYear) {
+    const year = document.createElement('span');
+    year.className = 'iba-badge-year';
+    year.textContent = String(ibaStatus.latestYear);
+    badge.append(year);
+  }
+
+  return badge;
+}
+
+async function renderResult(result, searchTerms, titleTag) {
   const li = document.createElement('li');
   const a = document.createElement('a');
   a.href = result.path;
   if (result.image) {
     const wrapper = document.createElement('div');
     wrapper.className = 'search-result-image';
-    const pic = createOptimizedPicture(result.image, '', false, [{ width: '375' }]);
+    const pic = createOptimizedPicture(result.image, '', false, [{ width: '750' }]);
     wrapper.append(pic);
+    if (result.title) {
+      const badge = await createIbaBadge(result.title);
+      if (badge) wrapper.append(badge);
+    }
     a.append(wrapper);
   }
   if (result.title) {
@@ -144,10 +173,10 @@ async function renderResults(block, config, filteredData, searchTerms) {
 
   if (filteredData.length) {
     searchResults.classList.remove('no-results');
-    filteredData.forEach((result) => {
-      const li = renderResult(result, searchTerms, headingTag);
-      searchResults.append(li);
-    });
+    const items = await Promise.all(
+      filteredData.map((result) => renderResult(result, searchTerms, headingTag)),
+    );
+    searchResults.append(...items);
   } else {
     const noResultsMessage = document.createElement('li');
     searchResults.classList.add('no-results');
@@ -160,6 +189,17 @@ function compareFound(hit1, hit2) {
   return hit1.minIdx - hit2.minIdx;
 }
 
+function earliestMatchIndex(text, searchTerms) {
+  let minIdx = Infinity;
+  const matched = searchTerms.every((term) => {
+    const idx = text.indexOf(term);
+    if (idx < 0) return false;
+    if (idx < minIdx) minIdx = idx;
+    return true;
+  });
+  return matched ? minIdx : -1;
+}
+
 function filterData(searchTerms, data) {
   const foundInHeader = [];
   const foundInMeta = [];
@@ -170,28 +210,17 @@ function filterData(searchTerms, data) {
   }
 
   data.forEach((result) => {
-    let minIdx = -1;
-
-    searchTerms.forEach((term) => {
-      const idx = (result.header || result.title).toLowerCase().indexOf(term);
-      if (idx < 0) return;
-      if (minIdx < idx) minIdx = idx;
-    });
-
-    if (minIdx >= 0) {
-      foundInHeader.push({ minIdx, result });
+    const headerText = (result.header || result.title || '').toLowerCase();
+    const headerIdx = earliestMatchIndex(headerText, searchTerms);
+    if (headerIdx >= 0) {
+      foundInHeader.push({ minIdx: headerIdx, result });
       return;
     }
 
     const metaContents = `${result.title} ${result.description} ${result.path.split('/').pop()}`.toLowerCase();
-    searchTerms.forEach((term) => {
-      const idx = metaContents.indexOf(term);
-      if (idx < 0) return;
-      if (minIdx < idx) minIdx = idx;
-    });
-
-    if (minIdx >= 0) {
-      foundInMeta.push({ minIdx, result });
+    const metaIdx = earliestMatchIndex(metaContents, searchTerms);
+    if (metaIdx >= 0) {
+      foundInMeta.push({ minIdx: metaIdx, result });
     }
   });
 

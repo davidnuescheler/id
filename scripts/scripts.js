@@ -25,12 +25,17 @@ export async function checkIBA(cocktail) {
   const status = {
     current: false,
     collections: [],
+    latestYear: null,
   };
   window.iba.forEach((collection) => {
     const cocktails = collection.Cocktails.split(',').map((c) => c.trim());
     if (cocktails.includes(cocktail)) {
       status.collections.push({ year: collection.Year, category: collection.Category });
       if (collection.Year === '2024') status.current = true;
+      const year = parseInt(collection.Year, 10);
+      if (!Number.isNaN(year) && (status.latestYear === null || year > status.latestYear)) {
+        status.latestYear = year;
+      }
     }
   });
   return (status);
