@@ -17,6 +17,12 @@ import {
  * @param {string} path The path to the fragment
  * @returns {HTMLElement} The root element of the fragment
  */
+async function decorateFragment(main) {
+  await decorateMain(main, true);
+  await loadBlocks(main);
+  return main;
+}
+
 export async function loadFragment(path) {
   if (path && path.startsWith('/')) {
     const resp = await fetch(`${path}.plain.html`);
@@ -33,12 +39,23 @@ export async function loadFragment(path) {
       resetAttributeBase('img', 'src');
       resetAttributeBase('source', 'srcset');
 
-      await decorateMain(main, true);
-      await loadBlocks(main);
-      return main;
+      return decorateFragment(main);
     }
   }
   return null;
+}
+
+/**
+ * Loads inline sections preceding a header or footer block, or its fragment.
+ * @param {Element} block The header or footer block
+ * @param {string} path The fallback fragment path
+ * @returns {Promise<HTMLElement|null>} The decorated content
+ */
+export async function loadInlineOrFragment(block, path) {
+  if (!block.previousElementSibling) return loadFragment(path);
+  const main = document.createElement('main');
+  while (block.previousElementSibling) main.prepend(block.previousElementSibling);
+  return decorateFragment(main);
 }
 
 export default async function decorate(block) {

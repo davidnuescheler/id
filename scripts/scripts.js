@@ -152,6 +152,8 @@ async function loadEager(doc) {
 async function loadLazy(doc) {
   autolinkModals(doc);
 
+  const headerLoaded = loadHeader(doc.querySelector('body > header'));
+
   const main = doc.querySelector('main');
   await loadBlocks(main);
 
@@ -159,8 +161,8 @@ async function loadLazy(doc) {
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadHeader(doc.querySelector('header'));
-  loadFooter(doc.querySelector('footer'));
+  await headerLoaded;
+  await loadFooter(doc.querySelector('body > footer'));
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();

@@ -63,6 +63,7 @@
 }
 
 body {
+  display: none;
   font-size: var(--body-font-size-m);
   margin: 0;
   font-family: var(--body-font-family);
@@ -81,8 +82,22 @@ body.appear {
   display: block;
 }
 
-header {
+body > header {
   height: var(--header-height);
+}
+
+/* Support inlined header/footer: hide raw siblings and unfinished blocks */
+body > header > :not(.header),
+body > footer > :not(.footer) {
+  display: none;
+}
+
+body > header > .header:not([data-block-status='loaded']) {
+  display: none;
+}
+
+body > footer > .footer:not([data-block-status='loaded']) {
+  visibility: hidden;
 }
 
 h1,
