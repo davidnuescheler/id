@@ -20,9 +20,13 @@ npm run lint
 
 ## Video placeholders
 
-For linked video files, the placeholder image stays visible until playback starts.
-When autoplay is disabled by reduced-motion preferences, it stays visible until the
-video can play. If autoplay fails, the placeholder remains visible.
+For linked video files with a placeholder, the 16:9 hero dimensions remain fixed
+while the video renders underneath the image. The image is hidden after playback
+starts and the first video frame is submitted. With reduced-motion preferences,
+the first paused frame is used instead. Browsers without video frame callbacks
+use playback/data readiness followed by a paint opportunity. If autoplay fails,
+the placeholder remains visible. YouTube and Vimeo embeds retain their existing
+loading behavior.
 
 ## Local development
 

@@ -36,18 +36,35 @@ div.section.video-container {
   inset: 0;
 }
 
-.video[data-embed-is-loaded="true"] .video-placeholder {
+.video.native-video .video-placeholder {
+  z-index: 1;
+}
+
+.video[data-embed-is-loaded="true"]:not(.native-video) .video-placeholder {
   visibility: hidden;
   height: 0;
   width: 0;
 }
 
-.video[data-embed-is-loaded="false"] .video-placeholder + * {
+.video[data-embed-is-loaded="false"]:not(.native-video) .video-placeholder + * {
   visibility: hidden;
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.video.native-video.placeholder > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video.native-video[data-embed-is-loaded="true"] .video-placeholder {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .video .video-placeholder picture img {

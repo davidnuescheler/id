@@ -103,9 +103,23 @@ const loadVideoEmbed = (block, link, autoplay, background) => {
     });
   } else {
     const videoEl = getVideoElement(link, autoplay, background);
-    videoEl.addEventListener(autoplay ? 'playing' : 'canplay', () => {
+    block.classList.add('native-video');
+    const revealVideo = () => {
       block.dataset.embedIsLoaded = true;
-    }, { once: true });
+    };
+    if ('requestVideoFrameCallback' in videoEl) {
+      const waitForFrame = () => videoEl.requestVideoFrameCallback(revealVideo);
+      if (autoplay) {
+        videoEl.addEventListener('playing', waitForFrame, { once: true });
+      } else {
+        waitForFrame();
+      }
+    } else {
+      videoEl.addEventListener(autoplay ? 'playing' : 'loadeddata', () => {
+        // Allow a paint before revealing video in browsers without frame callbacks.
+        requestAnimationFrame(() => requestAnimationFrame(revealVideo));
+      }, { once: true });
+    }
     block.append(videoEl);
   }
 };
