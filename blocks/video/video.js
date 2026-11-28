@@ -59,13 +59,17 @@ function getVideoElement(source, autoplay, background) {
   video.setAttribute('controls', '');
   if (autoplay) video.setAttribute('autoplay', '');
   if (background) {
+    video.muted = true;
     video.setAttribute('loop', '');
     video.setAttribute('playsinline', '');
     video.removeAttribute('controls');
     video.addEventListener('canplay', () => {
-      video.muted = true;
-      if (autoplay) video.play();
-    });
+      if (autoplay) {
+        video.play().catch((error) => {
+          console.error('Video autoplay failed', error);
+        });
+      }
+    }, { once: true });
   }
 
   const sourceEl = document.createElement('source');
@@ -77,7 +81,7 @@ function getVideoElement(source, autoplay, background) {
 }
 
 const loadVideoEmbed = (block, link, autoplay, background) => {
-  if (block.dataset.embedIsLoaded === 'true') {
+  if (block.dataset.embedIsLoaded === 'true' || block.querySelector('video, iframe')) {
     return;
   }
   const url = new URL(link);
@@ -99,10 +103,10 @@ const loadVideoEmbed = (block, link, autoplay, background) => {
     });
   } else {
     const videoEl = getVideoElement(link, autoplay, background);
-    block.append(videoEl);
-    videoEl.addEventListener('canplay', () => {
+    videoEl.addEventListener(autoplay ? 'playing' : 'canplay', () => {
       block.dataset.embedIsLoaded = true;
-    });
+    }, { once: true });
+    block.append(videoEl);
   }
 };
 

@@ -18,6 +18,12 @@ npm i
 npm run lint
 ```
 
+## Video placeholders
+
+For linked video files, the placeholder image stays visible until playback starts.
+When autoplay is disabled by reduced-motion preferences, it stays visible until the
+video can play. If autoplay fails, the placeholder remains visible.
+
 ## Local development
 
 1. Create a new repository based on the `aem-block-collection` template and add a mountpoint in the `fstab.yaml`
